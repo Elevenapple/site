@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --viewport-width: 100vw;
   --paper: #f3f6f7;
   --ink: #15191d;
   --steel: #5e6b73;
@@ -147,8 +148,22 @@
   }
 }
 
+
+@supports (width: 100dvw) {
+  :root {
+    --viewport-width: 100dvw;
+  }
+}
+
+@supports (width: 100svw) {
+  :root {
+    /* Prefer small viewport when both exist; dvw already set above */
+  }
+}
+
 .site-frame {
   min-height: 100vh;
+  overflow-x: clip;
   background-color: var(--paper);
   color: var(--ink);
 }
@@ -235,6 +250,75 @@
 .site-nav__links a:hover {
   color: var(--route);
 }
+
+.site-nav__menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.65rem;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.site-nav__menu-toggle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.site-nav__menu-toggle:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.site-nav__panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 40;
+  display: none;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 0 8px 0 rgb(21 25 29 / 8%);
+}
+
+.site-nav__panel[hidden] {
+  display: none !important;
+}
+
+.site-nav__panel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.25rem;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.site-nav__panel a:hover {
+  background: #e7ecef;
+  color: var(--route);
+}
+
+.site-nav__panel a svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 
 .site-nav__contact {
   display: inline-flex;
@@ -489,10 +573,10 @@
 .role-fit {
   position: relative;
   left: 50%;
-  width: 100vw;
+  width: var(--viewport-width, 100vw);
   margin-top: clamp(6rem, 12vw, 11rem);
-  margin-left: -50vw;
-  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((100vw - 1240px) / 2));
+  margin-left: calc(var(--viewport-width, 100vw) / -2);
+  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   overflow: hidden;
   background: var(--route);
   color: white;
@@ -1674,10 +1758,10 @@ a.role-fit__source:hover {
 .role-arc {
   position: relative;
   left: 50%;
-  width: 100vw;
+  width: var(--viewport-width, 100vw);
   margin-top: clamp(6rem, 12vw, 11rem);
-  margin-left: -50vw;
-  padding: clamp(5rem, 10vw, 9rem) max(1.25rem, calc((100vw - 1240px) / 2));
+  margin-left: calc(var(--viewport-width, 100vw) / -2);
+  padding: clamp(5rem, 10vw, 9rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   background: var(--ink);
   color: var(--paper);
 }
@@ -1873,9 +1957,9 @@ a.role-fit__source:hover {
 .contact-section {
   position: relative;
   left: 50%;
-  width: 100vw;
-  margin: clamp(6rem, 12vw, 11rem) 0 -7rem -50vw;
-  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((100vw - 1240px) / 2));
+  width: var(--viewport-width, 100vw);
+  margin: clamp(6rem, 12vw, 11rem) 0 -7rem calc(var(--viewport-width, 100vw) / -2);
+  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   background: var(--route);
   color: white;
 }
@@ -2162,10 +2246,6 @@ a.role-fit__source:hover {
 }
 
 @media (max-width: 900px) {
-  .site-nav__experience {
-    display: none;
-  }
-
   .portfolio-hero {
     grid-template-columns: 1fr;
     min-height: auto;
@@ -2226,14 +2306,24 @@ a.role-fit__source:hover {
     min-height: 66px;
   }
 
-  .site-nav__brand small,
-  .site-nav__links > a:first-child {
+  .site-nav__brand small {
     display: none;
   }
 
   .site-nav__links {
-    gap: 0.8rem;
-    font-size: 0.72rem;
+    display: none;
+  }
+
+  .site-nav__menu-toggle {
+    display: inline-flex;
+  }
+
+  .site-nav__panel {
+    display: none;
+  }
+
+  .site-nav__panel.is-open {
+    display: grid;
   }
 
   .portfolio-hero {

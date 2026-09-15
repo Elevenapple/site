@@ -51,4 +51,13 @@ https://paprikaf.com/resume
 - GitHub: https://github.com/paprikaf
 - LinkedIn: https://www.linkedin.com/in/ahmed-felfel-080895/
 
+## MCP server
+
+This site runs a read-only MCP server over the same public evidence, at
+https://paprikaf.com/api/mcp — Streamable HTTP, no API key, no sign-in.
+
+Tools: get_profile (start here), search_work, get_project, compare_role.
+The compare_role tool is rate limited because it runs a model; the lookups
+are not.
+
 For ownership boundaries and published claims, see /evidence.md.

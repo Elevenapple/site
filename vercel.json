@@ -2,7 +2,12 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.paprikaf.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.paprikaf.com"
+        }
+      ],
       "destination": "https://paprikaf.com/:path*",
       "permanent": true
     }
@@ -11,11 +16,23 @@
     "api/fit.ts": {
       "maxDuration": 25,
       "supportsCancellation": true
+    },
+    "api/mcp.ts": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
-    { "source": "/resume", "destination": "/index.html" },
-    { "source": "/writing", "destination": "/index.html" },
-    { "source": "/writing/:path*", "destination": "/index.html" }
+    {
+      "source": "/resume",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/writing",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/writing/:path*",
+      "destination": "/index.html"
+    }
   ]
 }

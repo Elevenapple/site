@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { experience, expertise, projects, publicLinks } from '@/data/portfolio';
+import { McpConnect } from '@/features/mcp/McpConnect';
 import { RoleFit } from '@/features/role-fit/RoleFit';
 
 function IndexComponent() {
@@ -84,6 +85,8 @@ function IndexComponent() {
       </section>
 
       <RoleFit />
+
+      <McpConnect />
 
       <section
         className="role-arc"

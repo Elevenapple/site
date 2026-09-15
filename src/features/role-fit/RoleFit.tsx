@@ -2,13 +2,20 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
+  FileText,
   FileUp,
   LoaderCircle,
+  Paperclip,
   X,
 } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent, DragEvent, FormEvent } from 'react';
+import type {
+  ChangeEvent,
+  DragEvent,
+  FormEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
 import {
   ACCEPTED_FILE_TYPES,
   MAX_FILE_BYTES,
@@ -33,6 +40,7 @@ import {
   type FitStageId,
 } from './fit-stream';
 import { RoleFitHatch } from './RoleFitHatch';
+import { SAMPLE_ROLE_TEXT } from './sample-role';
 
 const MIN_ROLE_LENGTH = 250;
 const MAX_ROLE_LENGTH = 12_000;
@@ -92,6 +100,19 @@ function formatFileSize(bytes: number): string {
 }
 
 const MAX_FILE_SIZE_LABEL = `${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB`;
+
+/** Mac shows ⌘↵; everything else shows Ctrl+Enter. */
+function submitShortcutLabel(): string {
+  if (typeof navigator === 'undefined') return 'Ctrl+Enter';
+
+  const platform =
+    (navigator as Navigator & { userAgentData?: { platform?: string } })
+      .userAgentData?.platform ?? navigator.userAgent;
+
+  return /mac|iphone|ipad|ipod/i.test(platform) ? '⌘↵' : 'Ctrl+Enter';
+}
+
+const SUBMIT_SHORTCUT = submitShortcutLabel();
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -537,8 +558,18 @@ export function RoleFit() {
     return () => window.cancelAnimationFrame(frame);
   }, [requestState.status]);
 
-  const focusTextarea = () => {
-    window.requestAnimationFrame(() => textareaRef.current?.focus());
+  const focusTextarea = (toStart = false) => {
+    window.requestAnimationFrame(() => {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      textarea.focus();
+
+      if (toStart) {
+        textarea.setSelectionRange(0, 0);
+        textarea.scrollTop = 0;
+      }
+    });
   };
 
   const clearTransientState = () => {
@@ -645,7 +676,7 @@ export function RoleFit() {
     event.target.value = '';
   };
 
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLElement>) => {
     event.preventDefault();
 
     if (!isLoading && roleFiles.length < MAX_FILES) {
@@ -654,13 +685,13 @@ export function RoleFit() {
     }
   };
 
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (event: DragEvent<HTMLElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
       setIsDragActive(false);
     }
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLElement>) => {
     event.preventDefault();
     setIsDragActive(false);
 
@@ -677,10 +708,37 @@ export function RoleFit() {
     setNotice('File removed.');
   };
 
+  const openFilePicker = () => {
+    if (isLoading || roleFiles.length >= MAX_FILES) {
+      setFieldError(
+        `You can add up to ${MAX_FILES} files. Remove one before adding another.`
+      );
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const handleUseSample = () => {
+    if (isLoading) return;
+
+    setRoleText(SAMPLE_ROLE_TEXT);
+    setFieldError(null);
+    setRequestState({ status: 'idle' });
+    setNotice('Sample role loaded. Edit it or compare it as is.');
+    focusTextarea(true);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (requestState.status === 'loading' || abortControllerRef.current) {
+      return;
+    }
+
+    if (filesAreReading) {
+      setFieldError('Wait for the attached files to finish reading.');
+      setNotice(null);
       return;
     }
 
@@ -876,8 +934,43 @@ export function RoleFit() {
     clearTransientState();
   };
 
+  const handleTextareaKeyDown = (
+    event: ReactKeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      event.currentTarget.form?.requestSubmit();
+    }
+  };
+
   const isLoading = requestState.status === 'loading';
   const showForm = requestState.status !== 'success';
+
+  // The 250-character floor is the real gate, so count toward it first. Showing
+  // "0 / 12,000" advertises a ceiling nobody is near and hides the requirement
+  // that actually blocks the visitor.
+  const belowFloor = roleInputLength < MIN_ROLE_LENGTH;
+  const overCeiling = roleInputLength > MAX_ROLE_LENGTH;
+  const countTarget = belowFloor ? MIN_ROLE_LENGTH : MAX_ROLE_LENGTH;
+  const countLabel = `${roleInputLength.toLocaleString()} / ${countTarget.toLocaleString()}`;
+  const countAriaLabel = belowFloor
+    ? `${roleInputLength.toLocaleString()} of ${MIN_ROLE_LENGTH.toLocaleString()} characters needed to compare`
+    : `${roleInputLength.toLocaleString()} of ${MAX_ROLE_LENGTH.toLocaleString()} combined characters used`;
+  const countClassName = overCeiling
+    ? 'role-fit__count role-fit__count--over'
+    : belowFloor && roleInputLength > 0
+      ? 'role-fit__count role-fit__count--pending'
+      : 'role-fit__count';
+  const submitBlocked = filesAreReading || belowFloor || overCeiling;
+  const gateHint = filesAreReading
+    ? 'Reading the attached files…'
+    : overCeiling
+      ? `Remove ${(roleInputLength - MAX_ROLE_LENGTH).toLocaleString()} characters to compare.`
+      : roleInputLength === 0
+        ? 'Paste a role, attach a file, or try the sample.'
+        : belowFloor
+          ? `${(MIN_ROLE_LENGTH - roleInputLength).toLocaleString()} more characters needed.`
+          : `Takes about 15 seconds. ${SUBMIT_SHORTCUT} to compare.`;
 
   return (
     <section
@@ -892,159 +985,151 @@ export function RoleFit() {
           <div>
             <h2 id="role-fit-title">How does Ahmed fit this role?</h2>
             <p>
-              Add a job description as files, pasted text, or both. You’ll see
-              where Ahmed’s public work lines up, what this site can’t answer,
-              and three questions to test the fit.
+              Paste a job description, or attach the files. You’ll see where
+              Ahmed’s public work lines up, what this site can’t answer, and
+              three questions to test the fit.
             </p>
           </div>
         </header>
 
         {showForm ? (
           <div className="role-fit__workbench">
-            <form className="role-fit__form" onSubmit={handleSubmit} noValidate>
+            <form
+              className={`role-fit__form${isDragActive ? ' role-fit__form--dropping' : ''}`}
+              onSubmit={handleSubmit}
+              onDragEnter={handleDragOver}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              noValidate
+            >
               <div className="role-fit__form-topline">
                 <span>Role workspace</span>
-                <span
-                  className={
-                    roleInputLength > MAX_ROLE_LENGTH
-                      ? 'role-fit__count role-fit__count--over'
-                      : 'role-fit__count'
-                  }
-                  aria-label={`${roleInputLength.toLocaleString()} of ${MAX_ROLE_LENGTH.toLocaleString()} combined characters`}
-                >
-                  {roleInputLength.toLocaleString()} /{' '}
-                  {MAX_ROLE_LENGTH.toLocaleString()}
+                <span className={countClassName} aria-label={countAriaLabel}>
+                  {countLabel}
                 </span>
               </div>
 
-              <div className="role-fit__input-workspace">
-                <div className="role-fit__file-column">
-                  <div
-                    className={`role-fit__dropzone${isDragActive ? ' role-fit__dropzone--active' : ''}`}
-                    role="button"
-                    tabIndex={isLoading ? -1 : 0}
-                    aria-label="Choose or drop role description files"
+              <div className="role-fit__paste">
+                <div className="role-fit__paste-head">
+                  <div>
+                    <label htmlFor="role-fit-input">
+                      Paste the role description
+                    </label>
+                    <p>
+                      Responsibilities, requirements, and team context give the
+                      sharpest comparison.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="role-fit__sample"
+                    onClick={handleUseSample}
+                    disabled={isLoading}
+                  >
+                    <FileText aria-hidden="true" />
+                    Try a sample role
+                  </button>
+                </div>
+
+                <textarea
+                  ref={textareaRef}
+                  id="role-fit-input"
+                  name="role-description"
+                  value={roleText}
+                  onChange={(event) => handleRoleTextChange(event.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
+                  maxLength={MAX_ROLE_LENGTH}
+                  placeholder="Paste the full role here — responsibilities, requirements, team context…"
+                  aria-describedby={`role-fit-input-help${fieldError ? ' role-fit-input-error' : ''}`}
+                  aria-invalid={fieldError ? 'true' : undefined}
+                  disabled={isLoading}
+                />
+
+                <div className="role-fit__attach">
+                  <button
+                    type="button"
+                    className="role-fit__attach-button"
+                    onClick={openFilePicker}
                     aria-disabled={
                       isLoading || roleFiles.length >= MAX_FILES
                         ? 'true'
                         : undefined
                     }
                     aria-describedby="role-fit-file-help"
-                    onClick={() => {
-                      if (!isLoading && roleFiles.length < MAX_FILES) {
-                        fileInputRef.current?.click();
-                      }
-                    }}
-                    onKeyDown={(event) => {
-                      if (
-                        (event.key === 'Enter' || event.key === ' ') &&
-                        !isLoading &&
-                        roleFiles.length < MAX_FILES
-                      ) {
-                        event.preventDefault();
-                        fileInputRef.current?.click();
-                      }
-                    }}
-                    onDragEnter={handleDragOver}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
                   >
-                    <FileUp aria-hidden="true" />
-                    <div>
-                      <h3>
-                        {roleFiles.length >= MAX_FILES
-                          ? 'File slots full'
-                          : isDragActive
-                            ? 'Drop to add files'
-                            : 'Drop job files here'}
-                      </h3>
-                      <p id="role-fit-file-help">
-                        PDF, DOCX, TXT, or Markdown · up to {MAX_FILES} files ·
-                        {MAX_FILE_SIZE_LABEL} each
-                      </p>
-                    </div>
-                    <span className="role-fit__choose-files">
-                      {roleFiles.length >= MAX_FILES
-                        ? `${MAX_FILES} files added`
-                        : 'Choose files'}
-                    </span>
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    className="role-fit__file-input"
-                    type="file"
-                    aria-label="Choose job description files"
-                    accept={ACCEPTED_FILE_TYPES}
-                    multiple
-                    onChange={handleFileInputChange}
-                    disabled={isLoading || roleFiles.length >= MAX_FILES}
-                    tabIndex={-1}
-                  />
-
-                  {roleFiles.length > 0 ? (
-                    <ul
-                      className="role-fit__file-list"
-                      aria-label="Files added to the role description"
-                      aria-live="polite"
-                    >
-                      {roleFiles.map((roleFile) => (
-                        <li
-                          key={roleFile.id}
-                          className={`role-fit__file-row role-fit__file-row--${roleFile.status}`}
-                        >
-                          <span className="role-fit__file-status">
-                            {roleFile.status === 'reading' ? (
-                              <LoaderCircle aria-hidden="true" />
-                            ) : roleFile.status === 'ready' ? (
-                              <Check aria-hidden="true" />
-                            ) : (
-                              <span aria-hidden="true">!</span>
-                            )}
-                          </span>
-                          <span className="role-fit__file-copy">
-                            <strong>{roleFile.file.name}</strong>
-                            <small>
-                              {roleFile.status === 'reading'
-                                ? 'Reading locally…'
-                                : roleFile.status === 'ready'
-                                  ? `${formatFileSize(roleFile.file.size)} · ${roleFile.text.trim().length.toLocaleString()} characters ready`
-                                  : roleFile.error}
-                            </small>
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(roleFile.id)}
-                            disabled={isLoading}
-                            aria-label={`Remove ${roleFile.file.name}`}
-                          >
-                            <X aria-hidden="true" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
+                    <Paperclip aria-hidden="true" />
+                    {roleFiles.length >= MAX_FILES
+                      ? `${MAX_FILES} files added`
+                      : 'Attach files'}
+                  </button>
+                  <p id="role-fit-file-help">
+                    or drop them anywhere on this panel · PDF, DOCX, TXT, or
+                    Markdown · up to {MAX_FILES} files · {MAX_FILE_SIZE_LABEL}{' '}
+                    each
+                  </p>
                 </div>
 
-                <div className="role-fit__text-column">
-                  <label htmlFor="role-fit-input">Paste or add context</label>
-                  <p>
-                    Paste the full role here, or add anything the files missed.
-                  </p>
-                  <textarea
-                    ref={textareaRef}
-                    id="role-fit-input"
-                    name="role-description"
-                    value={roleText}
-                    onChange={(event) =>
-                      handleRoleTextChange(event.target.value)
-                    }
-                    maxLength={MAX_ROLE_LENGTH}
-                    placeholder="Responsibilities, requirements, team context…"
-                    aria-describedby={`role-fit-input-help${fieldError ? ' role-fit-input-error' : ''}`}
-                    aria-invalid={fieldError ? 'true' : undefined}
-                    disabled={isLoading}
-                  />
+                <input
+                  ref={fileInputRef}
+                  className="role-fit__file-input"
+                  type="file"
+                  aria-label="Choose job description files"
+                  accept={ACCEPTED_FILE_TYPES}
+                  multiple
+                  onChange={handleFileInputChange}
+                  disabled={isLoading || roleFiles.length >= MAX_FILES}
+                  tabIndex={-1}
+                />
+
+                {roleFiles.length > 0 ? (
+                  <ul
+                    className="role-fit__file-list"
+                    aria-label="Files added to the role description"
+                    aria-live="polite"
+                  >
+                    {roleFiles.map((roleFile) => (
+                      <li
+                        key={roleFile.id}
+                        className={`role-fit__file-row role-fit__file-row--${roleFile.status}`}
+                      >
+                        <span className="role-fit__file-status">
+                          {roleFile.status === 'reading' ? (
+                            <LoaderCircle aria-hidden="true" />
+                          ) : roleFile.status === 'ready' ? (
+                            <Check aria-hidden="true" />
+                          ) : (
+                            <span aria-hidden="true">!</span>
+                          )}
+                        </span>
+                        <span className="role-fit__file-copy">
+                          <strong>{roleFile.file.name}</strong>
+                          <small>
+                            {roleFile.status === 'reading'
+                              ? 'Reading locally…'
+                              : roleFile.status === 'ready'
+                                ? `${formatFileSize(roleFile.file.size)} · ${roleFile.text.trim().length.toLocaleString()} characters ready`
+                                : roleFile.error}
+                          </small>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(roleFile.id)}
+                          disabled={isLoading}
+                          aria-label={`Remove ${roleFile.file.name}`}
+                        >
+                          <X aria-hidden="true" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                <div className="role-fit__dropveil" aria-hidden="true">
+                  <span>
+                    <FileUp aria-hidden="true" />
+                    Drop to add files
+                  </span>
                 </div>
               </div>
 
@@ -1062,11 +1147,6 @@ export function RoleFit() {
               </div>
 
               <div className="role-fit__form-footer">
-                <p>
-                  Files are read in your browser and never uploaded. Only the
-                  extracted text is sent to Anthropic for this comparison;
-                  Ahmed’s site does not save it.
-                </p>
                 {isLoading && requestState.status === 'loading' ? (
                   <div
                     className="role-fit__status-plate"
@@ -1085,19 +1165,40 @@ export function RoleFit() {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    className="role-fit__submit"
-                    type="submit"
-                    disabled={filesAreReading || roleInputLength === 0}
-                  >
-                    {filesAreReading
-                      ? 'Reading files…'
-                      : 'Compare with Ahmed’s work'}
-                    <ArrowRight aria-hidden="true" />
-                  </button>
+                  <>
+                    <button
+                      className="role-fit__submit"
+                      type="submit"
+                      data-blocked={submitBlocked ? 'true' : undefined}
+                      aria-disabled={submitBlocked ? 'true' : undefined}
+                    >
+                      {filesAreReading
+                        ? 'Reading files…'
+                        : 'Compare with Ahmed’s work'}
+                      <ArrowRight aria-hidden="true" />
+                    </button>
+                    <p className="role-fit__gate">{gateHint}</p>
+                  </>
                 )}
               </div>
             </form>
+
+            <ul className="role-fit__promises">
+              <li>
+                <span>In your browser</span>
+                Files are parsed locally. The file itself never leaves your
+                machine.
+              </li>
+              <li>
+                <span>Sent once</span>
+                Only the extracted text goes to Anthropic, for this one
+                comparison.
+              </li>
+              <li>
+                <span>Not stored</span>
+                Ahmed’s site does not save the role description or the brief.
+              </li>
+            </ul>
 
             {requestState.status === 'error' ? (
               <div className="role-fit__error" role="alert">

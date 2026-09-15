@@ -1,0 +1,47 @@
+name: apply-shadow-token-patch
+
+on:
+  push:
+    branches: [design/shadow-semantic-tokens]
+    paths:
+      - 'src-index.css.patch'
+      - '.github/workflows/apply-shadow-token-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design/shadow-semantic-tokens
+          fetch-depth: 0
+
+      - name: Restore main CSS, apply patch, clean artifacts
+        run: |
+          set -euo pipefail
+          if [ ! -f src-index.css.patch ]; then
+            echo "No patch present; skipping (cleanup push)."
+            exit 0
+          fi
+          git fetch origin main
+          git show origin/main:src/index.css > src/index.css
+          patch -p1 < src-index.css.patch
+          rm -f src-index.css.patch src/.token-size-probe.txt \
+            .github/workflows/apply-shadow-token-patch.yml
+          # Remove empty workflow dir noise if needed
+          git config user.name "Ahmed felfel"
+          git config user.email "paprikaf@users.noreply.github.com"
+          git add -A
+          git status
+          git commit -m "$(cat <<'EOF'
+design: tokenize neobrutal shadows and ad-hoc hexes in index.css
+
+Add shadow ladder (sm/md/lg/xl/soft + checkpoint variants) and semantic
+color tokens; replace live BEM hexes and hard-offset box-shadows. Keep
+--shadow-light for compat.
+EOF
+)"
+          git push origin HEAD:design/shadow-semantic-tokens

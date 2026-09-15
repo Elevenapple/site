@@ -97,7 +97,7 @@ export const projects: Project[] = [
     organization: 'Open source',
     title: 'Nomad',
     summary:
-      'I’m building Nomad for people who live across borders — travel history against Schengen and tax-day clocks, with an agent on the same record. Built on Agent Native. Not legal or tax advice.',
+      'I’m building Nomad for people who live across borders — travel history against visa and tax-day clocks, with an agent on the same record. Built on Agent Native. Not legal or tax advice.',
     tags: ['Residency', 'Tax presence', 'Agent-native'],
     links: [
       {

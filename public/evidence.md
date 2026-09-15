@@ -62,8 +62,8 @@ Public contribution records:
 ### Nomad — Building
 
 I’m building Nomad for people who live across borders — travel history against
-Schengen and tax-day clocks, with an agent on the same record. Built on Agent
-Native. Not legal or tax advice.
+visa and tax-day clocks (including Schengen 90/180 and 183-day thresholds), with
+an agent on the same record. Built on Agent Native. Not legal or tax advice.
 
 Public sources:
 

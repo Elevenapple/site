@@ -15,7 +15,7 @@ engineering. He built software in each role.
   https://www.builder.io/c/docs/mcp-builder-server
 - Agent Native: open-source contributions across approval flows, meeting capture/history, OAuth, and org role controls:
   https://github.com/BuilderIO/agent-native/pulls?q=is%3Apr+author%3Apaprikaf+is%3Amerged
-- Nomad: building for people who live across borders — travel history against Schengen and tax-day clocks (not legal or tax advice):
+- Nomad: building for people who live across borders — travel history against visa and tax-day clocks (not legal or tax advice):
   https://github.com/paprikaf/nomad
 - @crate.ai/discogs-sdk: creator and maintainer:
   https://www.npmjs.com/package/@crate.ai/discogs-sdk

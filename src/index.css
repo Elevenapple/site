@@ -683,118 +683,113 @@
   font-weight: 500;
 }
 
+.role-fit__form-topline .role-fit__count--pending {
+  color: var(--route);
+  font-weight: 750;
+}
+
 .role-fit__form-topline .role-fit__count--over {
   color: var(--danger);
   font-weight: 800;
 }
 
-.role-fit__input-workspace {
-  display: grid;
-  grid-template-columns: minmax(17rem, 5fr) minmax(0, 7fr);
+.role-fit__paste {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: clamp(1rem, 2.6vw, 1.75rem);
   border: 2px solid var(--ink);
   background: white;
 }
 
-.role-fit__file-column {
-  padding: clamp(0.8rem, 2vw, 1.25rem);
-  border-right: 1px solid var(--ink);
-  background: var(--paper-2);
-}
-
-.role-fit__dropzone {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1rem;
-  min-height: 13rem;
-  align-content: start;
-  padding: clamp(1rem, 2.4vw, 1.6rem);
-  border: 2px solid var(--ink);
-  background:
-    linear-gradient(
-        135deg,
-        transparent 0 48%,
-        var(--rule-soft) 48% 52%,
-        transparent 52%
-      )
-      top right / 1rem 1rem no-repeat,
-    white;
-  cursor: pointer;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
-}
-
-.role-fit__dropzone::after {
+/* Dropping anywhere on the panel works, so the veil covers the whole panel
+   rather than asking the visitor to hit a small target. */
+.role-fit__dropveil {
   position: absolute;
-  right: -2px;
-  bottom: -2px;
-  width: 2.6rem;
-  height: 0.4rem;
+  z-index: 2;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  border: 2px dashed white;
   background: var(--route);
-  content: '';
+  color: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
 }
 
-.role-fit__dropzone > svg {
-  width: 2.1rem;
-  height: 2.1rem;
-  color: var(--route);
-  stroke-width: 1.7;
+.role-fit__form--dropping .role-fit__dropveil {
+  opacity: 1;
 }
 
-.role-fit__dropzone h3 {
-  margin: 0;
-  font-size: clamp(1.2rem, 2vw, 1.55rem);
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+.role-fit__dropveil span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-.role-fit__dropzone p {
-  max-width: 20rem;
-  margin: 0.55rem 0 0;
-  color: var(--steel);
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.62rem;
-  line-height: 1.5;
+.role-fit__dropveil svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke-width: 2;
 }
 
-.role-fit__choose-files {
-  align-self: end;
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: auto;
-  padding: 0.55rem 0.75rem;
+.role-fit__attach {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  margin-top: 0.8rem;
+}
+
+.role-fit__attach-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.78rem;
+  font-weight: 750;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.role-fit__attach-button:hover:not([aria-disabled='true']) {
+  transform: translate(-1px, -1px);
   background: var(--ink);
   color: white;
-  font-size: 0.72rem;
-  font-weight: 800;
 }
 
-.role-fit__dropzone:hover:not([aria-disabled='true']) {
-  transform: translate(-2px, -2px);
-}
-
-.role-fit__dropzone--active {
-  background: var(--route);
-  color: white;
-}
-
-.role-fit__dropzone--active > svg,
-.role-fit__dropzone--active p {
-  color: white;
-}
-
-.role-fit__dropzone--active .role-fit__choose-files {
-  border-color: white;
-  background: white;
-  color: var(--route);
-}
-
-.role-fit__dropzone[aria-disabled='true'] {
+.role-fit__attach-button[aria-disabled='true'] {
   cursor: default;
-  opacity: 0.7;
+  box-shadow: none;
+  opacity: 0.55;
+}
+
+.role-fit__attach-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: 0 0 auto;
+  stroke-width: 2;
+}
+
+.role-fit__attach p {
+  min-width: 0;
+  flex: 1 1 14rem;
+  margin: 0;
+  color: var(--steel);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.6rem;
+  line-height: 1.5;
 }
 
 .role-fit__file-input {
@@ -913,24 +908,67 @@
   height: 1rem;
 }
 
-.role-fit__text-column {
+.role-fit__paste-head {
   display: flex;
-  min-width: 0;
-  flex-direction: column;
-  padding: clamp(1rem, 2.8vw, 1.85rem);
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
 }
 
-.role-fit__text-column > label {
+.role-fit__paste-head > div {
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.role-fit__paste-head label {
+  display: block;
   font-size: clamp(1.15rem, 2vw, 1.45rem);
   font-weight: 800;
   letter-spacing: -0.035em;
 }
 
-.role-fit__text-column > p {
-  margin: 0.35rem 0 1.1rem;
+.role-fit__paste-head p {
+  margin: 0.3rem 0 0;
   color: var(--steel);
   font-size: 0.8rem;
   line-height: 1.45;
+}
+
+/* The escape hatch for a visitor with no job description in the clipboard.
+   Without it the whole feature is a dead end for the median first visit. */
+.role-fit__sample {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--route);
+  background: white;
+  color: var(--route);
+  font-size: 0.78rem;
+  font-weight: 750;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.role-fit__sample:hover:not(:disabled) {
+  background: var(--route);
+  color: white;
+}
+
+.role-fit__sample:disabled {
+  border-color: var(--rule);
+  color: var(--steel-mid);
+}
+
+.role-fit__sample svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: 0 0 auto;
+  stroke-width: 2;
 }
 
 .role-fit__form textarea {
@@ -993,19 +1031,24 @@
 }
 
 .role-fit__form-footer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2rem;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  margin-top: 1.75rem;
+  gap: 0.85rem 1.25rem;
+  margin-top: 1.5rem;
 }
 
-.role-fit__form-footer > p {
-  max-width: 570px;
+/* The gate hint sits beside the button, so the reason a visitor cannot compare
+   yet is visible before they click rather than after the request fails. */
+.role-fit__gate {
+  min-width: 0;
+  flex: 1 1 12rem;
   margin: 0;
   color: var(--steel);
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
 }
 
 .role-fit__submit {
@@ -1030,6 +1073,17 @@
 .role-fit__submit:not(:disabled):hover {
   transform: translate(-2px, -2px);
   box-shadow: var(--shadow-lg);
+}
+
+.role-fit__submit[data-blocked='true'] {
+  background: var(--paper-2);
+  color: var(--steel);
+  box-shadow: none;
+}
+
+.role-fit__submit[data-blocked='true']:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .role-fit__submit:disabled {
@@ -1708,19 +1762,6 @@ a.role-fit__source:hover {
     gap: 0;
   }
 
-  .role-fit__input-workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .role-fit__file-column {
-    border-right: 0;
-    border-bottom: 1px solid var(--ink);
-  }
-
-  .role-fit__dropzone {
-    min-height: 10.5rem;
-  }
-
   .role-fit__requirements {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1785,13 +1826,12 @@ a.role-fit__source:hover {
     gap: 0.75rem;
   }
 
-  .role-fit__dropzone {
-    min-height: 9.5rem;
+  .role-fit__paste {
+    padding: 0.85rem;
   }
 
-  .role-fit__file-column,
-  .role-fit__text-column {
-    padding: 0.8rem;
+  .role-fit__gate {
+    flex-basis: 100%;
   }
 
   .role-fit__file-copy small {
@@ -2748,5 +2788,224 @@ a.role-fit__source:hover {
 
   .role-fit__file-row--reading .role-fit__file-status svg {
     animation: none;
+  }
+}
+
+/* ── MCP connect ──────────────────────────────────────────────────────────
+   Sits between the blue role-fit panel and the ink experience ledger, so it
+   stays on paper: a quiet technical aside, not a third loud band. */
+.mcp {
+  position: relative;
+  left: 50%;
+  width: var(--viewport-width, 100vw);
+  margin-left: calc(var(--viewport-width, 100vw) / -2);
+  padding: clamp(3.5rem, 7vw, 6rem)
+    max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.mcp__intro {
+  display: grid;
+  grid-template-columns: 4fr 8fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.mcp__intro .eyebrow {
+  color: var(--route);
+}
+
+.mcp__intro h2 {
+  max-width: 24ch;
+  margin: 0;
+  font-size: clamp(2rem, 3.6vw, 3.1rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.mcp__intro > div > p {
+  max-width: 62ch;
+  margin: 1.1rem 0 0;
+  color: var(--steel-deep);
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
+  line-height: 1.55;
+}
+
+.mcp__panel {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  border: 2px solid var(--ink);
+  background: white;
+  box-shadow: var(--shadow-lg);
+}
+
+.mcp__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--ink);
+}
+
+.mcp__tab {
+  padding: 0.85rem 1.1rem;
+  border: 0;
+  border-right: 1px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--steel-deep);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 750;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.mcp__tab:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.mcp__tab.is-active {
+  background: var(--ink);
+  color: white;
+}
+
+.mcp__snippet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+}
+
+.mcp__snippet pre {
+  min-width: 0;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.mcp__snippet code {
+  color: var(--ink);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.mcp__copy {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 750;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.mcp__copy:hover {
+  transform: translate(-1px, -1px);
+  background: var(--ink);
+  color: white;
+}
+
+.mcp__copy svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  stroke-width: 2;
+}
+
+.mcp__hint {
+  margin: 0;
+  padding: 0 clamp(1rem, 2.4vw, 1.5rem) 1.25rem;
+  color: var(--steel);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.03em;
+}
+
+.mcp__tools {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--ink);
+  list-style: none;
+}
+
+.mcp__tools li {
+  padding: 1.1rem clamp(0.9rem, 1.8vw, 1.25rem);
+  color: var(--steel-deep);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.mcp__tools li + li {
+  border-left: 1px solid var(--rule);
+}
+
+.mcp__tools span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--route);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .mcp__intro {
+    gap: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .mcp__tools {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mcp__tools li:nth-child(2n + 1) {
+    border-left: 0;
+  }
+
+  .mcp__tools li:nth-child(n + 3) {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+@media (max-width: 620px) {
+  .mcp {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .mcp__panel {
+    box-shadow: var(--shadow-md);
+  }
+
+  .mcp__snippet {
+    grid-template-columns: 1fr;
+  }
+
+  .mcp__copy {
+    justify-content: center;
+  }
+
+  .mcp__tools {
+    grid-template-columns: 1fr;
+  }
+
+  .mcp__tools li + li {
+    border-top: 1px solid var(--rule);
+    border-left: 0;
   }
 }

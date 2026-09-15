@@ -97,7 +97,7 @@ export const projects: Project[] = [
     organization: 'Open source',
     title: 'Nomad',
     summary:
-      'Building Nomad, an agent-native residency and tax-presence cockpit. Tracks Schengen 90/180 windows, 183-day tax thresholds, residence minimums, and planned travel — agent and UI share the same data and actions. Built on Builder’s Agent Native. Informational only — not legal or tax advice.',
+      'I’m building Nomad for people who live across borders — travel history against Schengen and tax-day clocks, with an agent on the same record. Built on Agent Native. Not legal or tax advice.',
     tags: ['Residency', 'Tax presence', 'Agent-native'],
     links: [
       {

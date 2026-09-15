@@ -45,12 +45,14 @@ public claims.
 
 ### Agent Native — Contributor
 
-Four merged contributions cover approval flows, meeting capture, meeting
-history, and OAuth URL detection. Ahmed is a contributor, not the creator or
+Contributions cover approval flows, meeting capture and history, OAuth URL
+detection, and org role controls. Ahmed is a contributor, not the creator or
 maintainer.
 
 Public contribution records:
 
+- https://github.com/paprikaf/nomad
+- https://github.com/BuilderIO/agent-native/pull/4409
 - https://github.com/BuilderIO/agent-native/pull/2887
 - https://github.com/BuilderIO/agent-native/pull/2823
 - https://github.com/BuilderIO/agent-native/pull/2647

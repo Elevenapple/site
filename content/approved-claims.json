@@ -74,7 +74,12 @@
       "organization": "Builder.io",
       "claim": "Ahmed built and launched the first production implementation of Builder's CMS MCP server.",
       "ownership": "built",
-      "capabilities": ["mcp", "agent-tooling", "content-apis", "zero-to-one"],
+      "capabilities": [
+        "mcp",
+        "agent-tooling",
+        "content-apis",
+        "zero-to-one"
+      ],
       "status": "shipped",
       "sources": [
         {
@@ -90,7 +95,9 @@
           "provenance": "public-artifact"
         }
       ],
-      "caveats": ["A broader team owns the product now."],
+      "caveats": [
+        "A broader team owns the product now."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -101,7 +108,12 @@
       "organization": "Builder.io",
       "claim": "Ahmed builds internal AI tools for Builder's GTM team and owns the work from prototype through live testing.",
       "ownership": "current-work",
-      "capabilities": ["applied-ai", "gtm", "prototyping", "live-testing"],
+      "capabilities": [
+        "applied-ai",
+        "gtm",
+        "prototyping",
+        "live-testing"
+      ],
       "status": "current",
       "sources": [
         {
@@ -122,7 +134,7 @@
       "projectId": "agent-native",
       "title": "Agent Native",
       "organization": "Open source",
-      "claim": "Ahmed has four merged Agent Native contributions covering approval flows, meeting capture, meeting history, and OAuth URL detection.",
+      "claim": "Ahmed has contributed to Builder’s Agent Native across approval flows, meeting capture and history, OAuth URL detection, and org role controls.",
       "ownership": "contributor",
       "capabilities": [
         "agent-tooling",
@@ -132,6 +144,18 @@
       ],
       "status": "shipped",
       "sources": [
+        {
+          "id": "nomad-source",
+          "label": "Nomad · source",
+          "url": "https://github.com/paprikaf/nomad",
+          "provenance": "public-authorship-record"
+        },
+        {
+          "id": "agent-native-pr-4409",
+          "label": "Agent Native PR #4409 · org role controls + member search",
+          "url": "https://github.com/BuilderIO/agent-native/pull/4409",
+          "provenance": "public-contribution-record"
+        },
         {
           "id": "agent-native-pr-2887",
           "label": "Agent Native PR #2887 · meeting history",
@@ -161,7 +185,7 @@
         "Ahmed is a contributor, not the project's creator or maintainer."
       ],
       "public": true,
-      "reviewedAt": "2026-08-27"
+      "reviewedAt": "2026-09-15"
     },
     {
       "id": "discogs-sdk-authorship",
@@ -170,7 +194,12 @@
       "organization": "Open source",
       "claim": "Ahmed created and maintains the @crate.ai/discogs-sdk TypeScript client for the Discogs API.",
       "ownership": "creator-maintainer",
-      "capabilities": ["typescript", "sdk-design", "api-design", "open-source"],
+      "capabilities": [
+        "typescript",
+        "sdk-design",
+        "api-design",
+        "open-source"
+      ],
       "status": "maintained",
       "sources": [
         {
@@ -197,7 +226,12 @@
       "organization": "Open source",
       "claim": "The SDK supports OAuth, search, collections, and identity workflows.",
       "ownership": "creator-maintainer",
-      "capabilities": ["oauth", "api-design", "sdk-design", "typescript"],
+      "capabilities": [
+        "oauth",
+        "api-design",
+        "sdk-design",
+        "typescript"
+      ],
       "status": "maintained",
       "sources": [
         {
@@ -281,7 +315,10 @@
       "organization": "Appnovation",
       "claim": "Ahmed worked as a Full-Stack Developer at Appnovation from 2021 to 2023.",
       "ownership": "role",
-      "capabilities": ["full-stack-development", "product-engineering"],
+      "capabilities": [
+        "full-stack-development",
+        "product-engineering"
+      ],
       "status": "historical",
       "sources": [
         {
@@ -328,7 +365,10 @@
       "organization": "Jesta I.S.",
       "claim": "Ahmed worked as a Web Developer at Jesta I.S. from 2019 to 2021.",
       "ownership": "role",
-      "capabilities": ["web-development", "product-engineering"],
+      "capabilities": [
+        "web-development",
+        "product-engineering"
+      ],
       "status": "historical",
       "sources": [
         {
@@ -391,7 +431,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published skills summary."],
+      "caveats": [
+        "This is a self-published skills summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -416,7 +458,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is Ahmed's self-published practice summary."],
+      "caveats": [
+        "This is Ahmed's self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -441,7 +485,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is Ahmed's self-published practice summary."],
+      "caveats": [
+        "This is Ahmed's self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -468,7 +514,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published skills summary."],
+      "caveats": [
+        "This is a self-published skills summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -494,7 +542,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published practice summary."],
+      "caveats": [
+        "This is a self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -523,7 +573,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published practice summary."],
+      "caveats": [
+        "This is a self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -552,7 +604,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published practice summary."],
+      "caveats": [
+        "This is a self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -579,7 +633,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is a self-published practice summary."],
+      "caveats": [
+        "This is a self-published practice summary."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -589,7 +645,9 @@
       "organization": "Collège LaSalle, Montréal",
       "claim": "Ahmed's public résumé lists a Bachelor's in Computer Science from Collège LaSalle, completed from 2016 to 2019.",
       "ownership": "role",
-      "capabilities": ["computer-science-education"],
+      "capabilities": [
+        "computer-science-education"
+      ],
       "status": "historical",
       "sources": [
         {
@@ -599,7 +657,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["This is education information Ahmed has published."],
+      "caveats": [
+        "This is education information Ahmed has published."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -609,7 +669,12 @@
       "organization": "Public résumé",
       "claim": "Ahmed's public résumé lists English, French, and Arabic as fluent and Spanish as conversational.",
       "ownership": "role",
-      "capabilities": ["english", "french", "arabic", "spanish"],
+      "capabilities": [
+        "english",
+        "french",
+        "arabic",
+        "spanish"
+      ],
       "status": "current",
       "sources": [
         {
@@ -619,7 +684,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["Language proficiency is self-reported."],
+      "caveats": [
+        "Language proficiency is self-reported."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     },
@@ -629,7 +696,10 @@
       "organization": "Montréal, Canada",
       "claim": "Ahmed's public portfolio lists Montréal, Canada as his current location.",
       "ownership": "role",
-      "capabilities": ["montreal", "canada"],
+      "capabilities": [
+        "montreal",
+        "canada"
+      ],
       "status": "current",
       "sources": [
         {
@@ -639,7 +709,9 @@
           "provenance": "ahmed-published-claim"
         }
       ],
-      "caveats": ["Location information was reviewed on 2026-08-27."],
+      "caveats": [
+        "Location information was reviewed on 2026-08-27."
+      ],
       "public": true,
       "reviewedAt": "2026-08-27"
     }

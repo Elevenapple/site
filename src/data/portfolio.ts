@@ -63,7 +63,7 @@ export const projects: Project[] = [
     organization: 'Open source',
     title: 'Agent Native',
     summary:
-      'I’ve made four merged contributions to Builder’s Agent Native project, covering approval flows, meeting capture, meeting history, and OAuth URL detection.',
+      'I’ve contributed to Builder’s Agent Native across approval flows, meeting capture and history, OAuth URL detection, and org role controls.',
     tags: ['Agent frameworks', 'Product contribution', 'Open source'],
     links: [
       {

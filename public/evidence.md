@@ -61,10 +61,9 @@ Public contribution records:
 
 ### Nomad — Building
 
-Building Nomad, an agent-native residency and tax-presence cockpit. It tracks
-Schengen 90/180 windows, 183-day tax thresholds, residence minimums, and planned
-travel, with an agent that shares the same data and actions as the UI. Built on
-Builder’s Agent Native. Informational estimates only — not legal or tax advice.
+I’m building Nomad for people who live across borders — travel history against
+visa and tax-day clocks (including Schengen 90/180 and 183-day thresholds), with
+an agent on the same record. Built on Agent Native. Not legal or tax advice.
 
 Public sources:
 

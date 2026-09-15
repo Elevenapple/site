@@ -6,15 +6,34 @@
 :root {
   --viewport-width: 100vw;
   --paper: #f3f6f7;
+  --paper-soft: #f8fafb;
+  --paper-2: #e7ecef;
   --ink: #15191d;
   --steel: #5e6b73;
+  --steel-muted: #737f86;
+  --steel-mid: #8d9ba4;
+  --steel-light: #b9c4ca;
+  --steel-deep: #536069;
   --rule: #c8d2d8;
+  --rule-soft: #d9e0e4;
   --route: #2457e6;
+  --route-soft: #dbe4ff;
+  --route-softer: #cfdcff;
   --checkpoint: #f4ad21;
+  --danger: #a02a1c;
+  --warn-wash: #fff1cf;
   --text: 21 25 29;
   --main: 243 246 247;
   --border: 94 107 115;
   --darkBorder: 21 25 29;
+  /* Shadow ladder — hard neobrutal offsets; --shadow-light kept as 4px default for compat */
+  --shadow-sm: 3px 3px 0 var(--ink);
+  --shadow-md: 4px 4px 0 var(--ink);
+  --shadow-lg: 7px 7px 0 var(--ink);
+  --shadow-xl: 12px 12px 0 var(--ink);
+  --shadow-soft: 0 8px 0 rgb(21 25 29 / 8%);
+  --shadow-md-checkpoint: 5px 5px 0 var(--checkpoint);
+  --shadow-lg-checkpoint: 7px 7px 0 var(--checkpoint);
   --shadow-light: 4px 4px 0 rgb(21 25 29);
   --shadow-dark: 0 0 0 transparent;
   --boxShadowX: 4px;
@@ -262,7 +281,7 @@
   border: 1px solid var(--ink);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
+  box-shadow: var(--shadow-sm);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.62rem;
   font-weight: 800;
@@ -290,7 +309,7 @@
   display: none;
   border-bottom: 1px solid var(--ink);
   background: var(--paper);
-  box-shadow: 0 8px 0 rgb(21 25 29 / 8%);
+  box-shadow: var(--shadow-soft);
 }
 
 .site-nav__panel[hidden] {
@@ -310,7 +329,7 @@
 }
 
 .site-nav__panel a:hover {
-  background: #e7ecef;
+  background: var(--paper-2);
   color: var(--route);
 }
 
@@ -398,13 +417,13 @@
   padding: 0 1.15rem;
   background: var(--ink);
   color: var(--paper);
-  box-shadow: 5px 5px 0 var(--checkpoint);
+  box-shadow: var(--shadow-md-checkpoint);
 }
 
 .button-link--primary:hover {
   color: white;
   transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--checkpoint);
+  box-shadow: var(--shadow-lg-checkpoint);
 }
 
 .text-link {
@@ -418,14 +437,14 @@
   margin: 0;
   border: 1px solid var(--ink);
   background: var(--paper);
-  box-shadow: 12px 12px 0 var(--ink);
+  box-shadow: var(--shadow-xl);
 }
 
 .portfolio-portrait img {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: #000;
+  background: var(--ink);
   object-fit: cover;
   object-position: 50% 20%;
 }
@@ -610,7 +629,7 @@
 }
 
 .role-fit__intro .eyebrow {
-  color: #dbe4ff;
+  color: var(--route-soft);
 }
 
 .role-fit__intro h2 {
@@ -625,7 +644,7 @@
 .role-fit__intro > div > p {
   max-width: 770px;
   margin: 2rem 0 0;
-  color: #dbe4ff;
+  color: var(--route-soft);
   font-size: clamp(1.05rem, 1.7vw, 1.28rem);
   line-height: 1.5;
 }
@@ -636,7 +655,7 @@
   border: 2px solid var(--ink);
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 12px 12px 0 var(--ink);
+  box-shadow: var(--shadow-xl);
 }
 
 .role-fit__form {
@@ -666,7 +685,7 @@
 }
 
 .role-fit__form-topline .role-fit__count--over {
-  color: #a02a1c;
+  color: var(--danger);
   font-weight: 800;
 }
 
@@ -680,7 +699,7 @@
 .role-fit__file-column {
   padding: clamp(0.8rem, 2vw, 1.25rem);
   border-right: 1px solid var(--ink);
-  background: #e7ecef;
+  background: var(--paper-2);
 }
 
 .role-fit__dropzone {
@@ -693,7 +712,7 @@
   padding: clamp(1rem, 2.4vw, 1.6rem);
   border: 2px solid var(--ink);
   background:
-    linear-gradient(135deg, transparent 0 48%, #d9e0e4 48% 52%, transparent 52%)
+    linear-gradient(135deg, transparent 0 48%, var(--rule-soft) 48% 52%, transparent 52%)
       top right / 1rem 1rem no-repeat,
     white;
   cursor: pointer;
@@ -804,8 +823,8 @@
 }
 
 .role-fit__file-row--error {
-  border-color: #a02a1c;
-  background: #fff1cf;
+  border-color: var(--danger);
+  background: var(--warn-wash);
 }
 
 .role-fit__file-status {
@@ -837,8 +856,8 @@
 }
 
 .role-fit__file-row--error .role-fit__file-status {
-  border-color: #a02a1c;
-  color: #a02a1c;
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .role-fit__file-copy {
@@ -865,7 +884,7 @@
 }
 
 .role-fit__file-row--error .role-fit__file-copy small {
-  color: #a02a1c;
+  color: var(--danger);
   white-space: normal;
 }
 
@@ -919,7 +938,7 @@
   resize: vertical;
   border: 1px solid var(--ink);
   border-radius: 0;
-  background: #f8fafb;
+  background: var(--paper-soft);
   color: var(--ink);
   caret-color: var(--route);
   font-size: clamp(0.95rem, 1.4vw, 1.05rem);
@@ -927,11 +946,11 @@
 }
 
 .role-fit__form textarea::placeholder {
-  color: #737f86;
+  color: var(--steel-muted);
 }
 
 .role-fit__form textarea:disabled {
-  background: #e6ebee;
+  background: var(--paper-2);
   color: var(--steel);
 }
 
@@ -964,7 +983,7 @@
 
 .role-fit__input-meta [role='alert'] {
   max-width: 520px;
-  color: #a02a1c;
+  color: var(--danger);
   font-weight: 750;
   text-align: right;
 }
@@ -996,7 +1015,7 @@
   border-radius: 0;
   background: var(--checkpoint);
   color: var(--ink);
-  box-shadow: 5px 5px 0 var(--ink);
+  box-shadow: var(--shadow-md);
   font-weight: 800;
   transition:
     transform 160ms ease,
@@ -1006,7 +1025,7 @@
 
 .role-fit__submit:not(:disabled):hover {
   transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--ink);
+  box-shadow: var(--shadow-lg);
 }
 
 .role-fit__submit:disabled {
@@ -1092,7 +1111,7 @@
 }
 
 .role-fit__error {
-  background: #fff1cf;
+  background: var(--warn-wash);
 }
 
 .role-fit__error a {
@@ -1128,7 +1147,7 @@
 
 .role-fit__result-actions > p {
   margin: 0;
-  color: #dbe4ff;
+  color: var(--route-soft);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.68rem;
   letter-spacing: 0.035em;
@@ -1282,7 +1301,7 @@
 }
 
 .role-fit__match-role {
-  background: #e7ecef;
+  background: var(--paper-2);
 }
 
 .role-fit__relationship {
@@ -1407,7 +1426,7 @@ a.role-fit__source:hover {
   display: inline-flex;
   align-items: center;
   padding: 0.45rem;
-  background: #e7ecef;
+  background: var(--paper-2);
   color: var(--steel);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.54rem;
@@ -1508,7 +1527,7 @@ a.role-fit__source:hover {
   gap: 3rem;
   align-items: end;
   padding: clamp(1.5rem, 4vw, 3rem);
-  background: #e7ecef;
+  background: var(--paper-2);
 }
 
 .role-fit__disclosure > div:first-child > p:nth-child(2) {
@@ -1630,7 +1649,7 @@ a.role-fit__source:hover {
 
   .role-fit__workbench,
   .role-fit__desk {
-    box-shadow: 6px 6px 0 var(--ink);
+    box-shadow: var(--shadow-lg);
   }
 
   .role-fit__form {
@@ -1801,13 +1820,13 @@ a.role-fit__source:hover {
   grid-column: 2;
   max-width: 660px;
   margin: 2.2rem 0 0;
-  color: #b9c4ca;
+  color: var(--steel-light);
   font-size: 1.15rem;
 }
 
 .experience-ledger {
   margin-top: clamp(4rem, 8vw, 7rem);
-  border-top: 1px solid #536069;
+  border-top: 1px solid var(--steel-deep);
 }
 
 .experience-row {
@@ -1815,7 +1834,7 @@ a.role-fit__source:hover {
   grid-template-columns: 1fr 3fr 8fr;
   gap: 2rem;
   padding-block: 2rem;
-  border-bottom: 1px solid #536069;
+  border-bottom: 1px solid var(--steel-deep);
 }
 
 .experience-row__number,
@@ -1828,7 +1847,7 @@ a.role-fit__source:hover {
 .experience-row__number,
 .experience-row__period {
   margin: 0;
-  color: #8d9ba4;
+  color: var(--steel-mid);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
 }
@@ -1872,7 +1891,7 @@ a.role-fit__source:hover {
 .experience-row__detail > p:last-child {
   max-width: 670px;
   margin: 0;
-  color: #b9c4ca;
+  color: var(--steel-light);
 }
 
 .expertise-section {
@@ -1972,7 +1991,7 @@ a.role-fit__source:hover {
 }
 
 .contact-section .eyebrow {
-  color: #cfdcff;
+  color: var(--route-softer);
 }
 
 .contact-section h2 {
@@ -1983,7 +2002,7 @@ a.role-fit__source:hover {
 .contact-section > p:nth-of-type(2) {
   max-width: 690px;
   margin: 1.8rem 0 0;
-  color: #dbe4ff;
+  color: var(--route-soft);
   font-size: 1.18rem;
 }
 
@@ -1998,7 +2017,7 @@ a.role-fit__source:hover {
 .contact-section .button-link--primary {
   background: white;
   color: var(--ink);
-  box-shadow: 5px 5px 0 var(--ink);
+  box-shadow: var(--shadow-md);
 }
 
 .contact-section .text-link {
@@ -2348,7 +2367,7 @@ a.role-fit__source:hover {
   }
 
   .portfolio-portrait {
-    box-shadow: 7px 7px 0 var(--ink);
+    box-shadow: var(--shadow-lg);
   }
 
   .role-arc__intro h2 {

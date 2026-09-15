@@ -92,6 +92,25 @@ export const projects: Project[] = [
     ],
   },
   {
+    id: 'nomad',
+    ownership: 'Building',
+    organization: 'Open source',
+    title: 'Nomad',
+    summary:
+      'Building Nomad, an agent-native residency and tax-presence cockpit. Tracks Schengen 90/180 windows, 183-day tax thresholds, residence minimums, and planned travel — agent and UI share the same data and actions. Built on Builder’s Agent Native. Informational only — not legal or tax advice.',
+    tags: ['Residency', 'Tax presence', 'Agent-native'],
+    links: [
+      {
+        label: 'View on GitHub',
+        href: 'https://github.com/paprikaf/nomad',
+      },
+      {
+        label: 'Open community page',
+        href: 'https://www.agent-native.com/apps/community/nomad/',
+      },
+    ],
+  },
+  {
     id: 'galite',
     ownership: 'Building',
     organization: 'Independent',

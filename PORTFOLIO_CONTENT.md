@@ -49,6 +49,7 @@ month-level dates publicly without checking the HR record.
   implementation
 - **Internal AI tools for GTM:** Current work; internal system
 - **Agent Native:** Contributor
+- **Nomad:** Building; public and early; built on Agent Native
 - **@crate.ai/discogs-sdk:** Creator and maintainer
 - **Galite:** Now building; public and early
 

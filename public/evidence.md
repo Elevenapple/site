@@ -49,14 +49,27 @@ Contributions cover approval flows, meeting capture and history, OAuth URL
 detection, and org role controls. Ahmed is a contributor, not the creator or
 maintainer.
 
+Related: Nomad is built on Builder’s Agent Native (see Nomad below).
+
 Public contribution records:
 
-- https://github.com/paprikaf/nomad
 - https://github.com/BuilderIO/agent-native/pull/4409
 - https://github.com/BuilderIO/agent-native/pull/2887
 - https://github.com/BuilderIO/agent-native/pull/2823
 - https://github.com/BuilderIO/agent-native/pull/2647
 - https://github.com/BuilderIO/agent-native/pull/59
+
+### Nomad — Building
+
+Building Nomad, an agent-native residency and tax-presence cockpit. It tracks
+Schengen 90/180 windows, 183-day tax thresholds, residence minimums, and planned
+travel, with an agent that shares the same data and actions as the UI. Built on
+Builder’s Agent Native. Informational estimates only — not legal or tax advice.
+
+Public sources:
+
+- https://github.com/paprikaf/nomad
+- https://www.agent-native.com/apps/community/nomad/
 
 ### @crate.ai/discogs-sdk — Creator and maintainer
 

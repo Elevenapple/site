@@ -1,6 +1,6 @@
 {
   "version": "2026-08-27.6",
-  "reviewedAt": "2026-08-27",
+  "reviewedAt": "2026-09-15",
   "claims": [
     {
       "id": "builder-academy-built",
@@ -145,12 +145,6 @@
       "status": "shipped",
       "sources": [
         {
-          "id": "nomad-source",
-          "label": "Nomad · source",
-          "url": "https://github.com/paprikaf/nomad",
-          "provenance": "public-authorship-record"
-        },
-        {
           "id": "agent-native-pr-4409",
           "label": "Agent Native PR #4409 · org role controls + member search",
           "url": "https://github.com/BuilderIO/agent-native/pull/4409",
@@ -182,7 +176,43 @@
         }
       ],
       "caveats": [
-        "Ahmed is a contributor, not the project's creator or maintainer."
+        "Ahmed is a contributor, not the project's creator or maintainer.",
+        "Nomad is a separate project built on Agent Native; see the Nomad claim."
+      ],
+      "public": true,
+      "reviewedAt": "2026-09-15"
+    },
+    {
+      "id": "nomad-building",
+      "projectId": "nomad",
+      "title": "Nomad",
+      "organization": "Open source",
+      "claim": "Ahmed is building Nomad, an agent-native residency and tax-presence cockpit that tracks Schengen 90/180 windows, 183-day tax thresholds, residence minimums, and planned travel, with an agent that shares the same data and actions as the UI. Built on Builder’s Agent Native. Informational estimates only — not legal or tax advice.",
+      "ownership": "building",
+      "capabilities": [
+        "agent-tooling",
+        "product-engineering",
+        "open-source",
+        "zero-to-one"
+      ],
+      "status": "building",
+      "sources": [
+        {
+          "id": "nomad-source",
+          "label": "Nomad · source",
+          "url": "https://github.com/paprikaf/nomad",
+          "provenance": "public-authorship-record"
+        },
+        {
+          "id": "nomad-community",
+          "label": "Nomad · Agent Native community page",
+          "url": "https://www.agent-native.com/apps/community/nomad/",
+          "provenance": "public-artifact"
+        }
+      ],
+      "caveats": [
+        "Informational estimates only — not legal or tax advice.",
+        "Ahmed is building Nomad; do not claim shipped product metrics."
       ],
       "public": true,
       "reviewedAt": "2026-09-15"

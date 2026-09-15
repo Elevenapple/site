@@ -495,18 +495,23 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.45rem;
   color: var(--steel);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.64rem;
+  font-size: 0.62rem;
+  font-weight: 500;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .evidence-row__label span:first-child {
-  padding: 0.25rem 0.45rem;
+  padding: 0.28rem 0.5rem;
   background: var(--checkpoint);
   color: var(--ink);
+  font-size: 0.58rem;
   font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .evidence-row__story h3 {
@@ -534,9 +539,11 @@
 .evidence-row__story li {
   border: 1px solid var(--rule);
   padding: 0.28rem 0.55rem;
+  color: var(--steel);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.05em;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 

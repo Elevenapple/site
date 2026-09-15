@@ -1007,23 +1007,6 @@ export function RoleFit() {
               </div>
             </form>
 
-            {requestState.status === 'idle' ? (
-              <ul className="role-fit__promises" aria-label="Brief contents">
-                <li>
-                  <span>Overlap</span>
-                  Relevant public work
-                </li>
-                <li>
-                  <span>Unknowns</span>
-                  What this site can’t answer
-                </li>
-                <li>
-                  <span>Questions</span>
-                  Three useful interview prompts
-                </li>
-              </ul>
-            ) : null}
-
             {requestState.status === 'loading' ? (
               <div
                 className="role-fit__loading"

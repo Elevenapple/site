@@ -26,6 +26,12 @@ import type {
   FitEvidenceSource,
   RoleRequirement,
 } from './types';
+import {
+  consumeFitUiMessageStream,
+  FIT_STAGE_COPY,
+  FIT_STOPPED_COPY,
+  type FitStageId,
+} from './fit-stream';
 
 const MIN_ROLE_LENGTH = 250;
 const MAX_ROLE_LENGTH = 12_000;
@@ -63,7 +69,7 @@ const API_ERROR_MESSAGES: Partial<Record<FitApiErrorCode, string>> = {
 
 type RequestState =
   | { status: 'idle' }
-  | { status: 'loading' }
+  | { status: 'loading'; stage: FitStageId; label: string }
   | { status: 'success'; brief: FitBrief }
   | { status: 'error'; message: string };
 
@@ -701,12 +707,19 @@ export function RoleFit() {
     abortControllerRef.current = controller;
     setFieldError(null);
     setNotice(null);
-    setRequestState({ status: 'loading' });
+    setRequestState({
+      status: 'loading',
+      stage: 1,
+      label: FIT_STAGE_COPY[1],
+    });
 
     try {
       const response = await fetch('/api/fit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream, application/json',
+        },
         body: JSON.stringify({ input: { type: 'text', text } }),
         signal: controller.signal,
       });
@@ -724,24 +737,85 @@ export function RoleFit() {
             : apiError
               ? (API_ERROR_MESSAGES[apiError.error.code] ??
                 apiError.error.message)
-              : 'The comparison did not finish. Try again or read Ahmed’s résumé.';
+              : FIT_STOPPED_COPY;
 
         setRequestState({ status: 'error', message });
         return;
       }
 
-      const payload: unknown = await response.json().catch(() => null);
+      const contentType = response.headers.get('content-type') ?? '';
+      const isUiMessageStream =
+        contentType.includes('text/event-stream') ||
+        response.headers.get('x-vercel-ai-ui-message-stream') === 'v1';
 
-      if (!isFitBrief(payload)) {
+      if (!isUiMessageStream) {
+        const payload: unknown = await response.json().catch(() => null);
+
+        if (!isFitBrief(payload)) {
+          setRequestState({
+            status: 'error',
+            message: FIT_STOPPED_COPY,
+          });
+          return;
+        }
+
+        setRequestState({ status: 'success', brief: payload });
+        return;
+      }
+
+      let streamBrief: FitBrief | null = null;
+      let streamError: string | null = null;
+
+      await consumeFitUiMessageStream(
+        response,
+        (event) => {
+          if (abortControllerRef.current !== controller) {
+            return;
+          }
+
+          if (event.type === 'stage') {
+            setRequestState({
+              status: 'loading',
+              stage: event.stage,
+              label: event.label,
+            });
+            return;
+          }
+
+          if (event.type === 'brief') {
+            streamBrief = event.brief;
+            return;
+          }
+
+          streamError = FIT_STOPPED_COPY;
+        },
+        controller.signal
+      );
+
+      if (abortControllerRef.current !== controller) {
+        return;
+      }
+
+      if (controller.signal.aborted) {
+        setRequestState({ status: 'idle' });
+        setNotice(FIT_STOPPED_COPY);
+        return;
+      }
+
+      if (streamError) {
+        setRequestState({ status: 'error', message: streamError });
+        return;
+      }
+
+      if (!streamBrief || !isFitBrief(streamBrief)) {
         setRequestState({
           status: 'error',
-          message:
-            'The comparison returned an incomplete brief. Try again or read Ahmed’s résumé.',
+          message: FIT_STOPPED_COPY,
         });
         return;
       }
 
-      setRequestState({ status: 'success', brief: payload });
+      setRequestState({ status: 'success', brief: streamBrief });
     } catch (error) {
       if (abortControllerRef.current !== controller) {
         return;
@@ -749,7 +823,7 @@ export function RoleFit() {
 
       if (controller.signal.aborted) {
         setRequestState({ status: 'idle' });
-        setNotice('Comparison cancelled. Your role description is still here.');
+        setNotice(FIT_STOPPED_COPY);
         return;
       }
 
@@ -758,7 +832,7 @@ export function RoleFit() {
         message:
           error instanceof TypeError
             ? 'The comparison could not reach the service. Check your connection and try again.'
-            : 'The comparison did not finish. Try again or read Ahmed’s résumé.',
+            : FIT_STOPPED_COPY,
       });
     } finally {
       if (abortControllerRef.current === controller) {
@@ -770,7 +844,7 @@ export function RoleFit() {
   const handleCancel = () => {
     abortControllerRef.current?.abort();
     setRequestState({ status: 'idle' });
-    setNotice('Comparison cancelled. Your role description is still here.');
+    setNotice(FIT_STOPPED_COPY);
     focusTextarea();
   };
 
@@ -992,36 +1066,37 @@ export function RoleFit() {
                   extracted text is sent to Anthropic for this comparison;
                   Ahmed’s site does not save it.
                 </p>
-                <button
-                  className="role-fit__submit"
-                  type="submit"
-                  disabled={
-                    isLoading || filesAreReading || roleInputLength === 0
-                  }
-                >
-                  {filesAreReading
-                    ? 'Reading files…'
-                    : 'Compare with Ahmed’s work'}
-                  <ArrowRight aria-hidden="true" />
-                </button>
+                {isLoading && requestState.status === 'loading' ? (
+                  <div
+                    className="role-fit__status-plate"
+                    data-stage={requestState.stage}
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
+                    <div className="role-fit__hatch" aria-hidden="true" />
+                    <div className="role-fit__status-plate-copy">
+                      <p className="role-fit__desk-label">Compare</p>
+                      <p className="role-fit__stage">{requestState.label}</p>
+                    </div>
+                    <button type="button" onClick={handleCancel}>
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="role-fit__submit"
+                    type="submit"
+                    disabled={filesAreReading || roleInputLength === 0}
+                  >
+                    {filesAreReading
+                      ? 'Reading files…'
+                      : 'Compare with Ahmed’s work'}
+                    <ArrowRight aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </form>
-
-            {requestState.status === 'loading' ? (
-              <div
-                className="role-fit__loading"
-                role="status"
-                aria-live="polite"
-              >
-                <div>
-                  <p className="role-fit__desk-label">Building the brief</p>
-                  <h3>Checking the role against Ahmed’s work.</h3>
-                </div>
-                <button type="button" onClick={handleCancel}>
-                  Cancel comparison
-                </button>
-              </div>
-            ) : null}
 
             {requestState.status === 'error' ? (
               <div className="role-fit__error" role="alert">

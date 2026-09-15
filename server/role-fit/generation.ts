@@ -1,10 +1,11 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, Output } from 'ai';
 
+import type { FitStageId } from '../../src/features/role-fit/stages.js';
+import type { FitBrief } from '../../src/features/role-fit/types.js';
 import { approvedEvidence } from './evidence.js';
 import { hydrateFitBrief } from './hydration.js';
 import { modelFitBriefSchema } from './model-contract.js';
-import type { FitBrief } from '../../src/features/role-fit/types.js';
 
 const DEFAULT_FIT_MODEL = 'claude-sonnet-4-6';
 const FIT_TIMEOUT_MS = 20_000;
@@ -42,10 +43,13 @@ function modelEvidencePayload() {
   }));
 }
 
+export type FitStageListener = (stage: FitStageId) => void;
+
 export async function generateFitBrief(
   roleText: string,
   requestId: string,
-  requestSignal: AbortSignal
+  requestSignal: AbortSignal,
+  onStage?: FitStageListener
 ): Promise<FitBrief> {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error('The fit model is not configured.');
@@ -53,12 +57,17 @@ export async function generateFitBrief(
 
   const modelId = process.env.FIT_MODEL?.trim() || DEFAULT_FIT_MODEL;
   const generatedAt = new Date().toISOString();
+
+  // Real pipeline stage 1: interpret the pasted role into the model prompt.
+  onStage?.(1);
   const prompt = JSON.stringify({
     submittedRoleDescription: roleText,
     approvedEvidenceVersion: approvedEvidence.version,
     approvedClaims: modelEvidencePayload(),
   });
 
+  // Real pipeline stage 2: match the role against approved public claims.
+  onStage?.(2);
   const result = await generateText({
     model: anthropic(modelId),
     system: fitSystemPrompt,
@@ -75,6 +84,8 @@ export async function generateFitBrief(
     timeout: { totalMs: FIT_TIMEOUT_MS },
   });
 
+  // Real pipeline stage 3: hydrate gaps, rationale, and exactly three questions.
+  onStage?.(3);
   return hydrateFitBrief(result.output, roleText, {
     requestId,
     generatedAt,

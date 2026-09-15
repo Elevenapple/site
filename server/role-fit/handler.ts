@@ -1,12 +1,27 @@
 import { randomUUID } from 'node:crypto';
 
-import { RetryError } from 'ai';
+import {
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  RetryError,
+  type InferUIMessageChunk,
+  type UIMessage,
+} from 'ai';
 
+import {
+  FIT_STAGE_COPY,
+  FIT_STOPPED_COPY,
+  type FitStageId,
+} from '../../src/features/role-fit/stages.js';
 import type {
   FitApiError,
   FitApiErrorCode,
+  FitBrief,
 } from '../../src/features/role-fit/types.js';
-import { generateFitBrief } from './generation.js';
+import {
+  generateFitBrief,
+  type FitStageListener,
+} from './generation.js';
 import { takeFitRateLimit } from './rate-limit.js';
 import {
   FitValidationError,
@@ -14,12 +29,32 @@ import {
   readAndValidateFitRequest,
 } from './validation.js';
 
-const responseHeaders = {
+const jsonResponseHeaders = {
   'Cache-Control': 'no-store, max-age=0',
   'Content-Type': 'application/json; charset=utf-8',
   'X-Content-Type-Options': 'nosniff',
   Vary: 'Origin',
 };
+
+const streamExtraHeaders = {
+  'Cache-Control': 'no-store, max-age=0',
+  'X-Content-Type-Options': 'nosniff',
+  Vary: 'Origin',
+};
+
+type FitStreamDataParts = {
+  stage: {
+    stage: FitStageId;
+    label: string;
+  };
+  brief: FitBrief;
+  error: {
+    code: FitApiErrorCode;
+    message: string;
+  };
+};
+
+type FitUIMessage = UIMessage<never, FitStreamDataParts>;
 
 export type FitFailureDiagnostic = {
   requestId: string;
@@ -61,7 +96,7 @@ function errorResponse(
   return new Response(JSON.stringify(body), {
     status,
     headers: {
-      ...responseHeaders,
+      ...jsonResponseHeaders,
       'X-Request-Id': requestId,
       ...additionalHeaders,
     },
@@ -84,6 +119,21 @@ function isProviderTimeout(
     error instanceof Error &&
     (error.name === 'TimeoutError' || /timed?\s*out/i.test(error.message))
   );
+}
+
+function writeStage(
+  writer: { write: (part: InferUIMessageChunk<FitUIMessage>) => void },
+  stage: FitStageId
+): void {
+  writer.write({
+    type: 'data-stage',
+    id: 'fit-stage',
+    data: {
+      stage,
+      label: FIT_STAGE_COPY[stage],
+    },
+    transient: true,
+  });
 }
 
 export async function handleFitRequest(
@@ -165,27 +215,85 @@ export async function handleFitRequest(
     );
   }
 
-  try {
-    const fitBrief = await generate(roleText, requestId, request.signal);
-    return new Response(JSON.stringify(fitBrief), {
-      status: 200,
-      headers: { ...responseHeaders, 'X-Request-Id': requestId },
-    });
-  } catch (error) {
-    if (isProviderTimeout(error, request.signal)) {
-      return fail(
-        504,
-        'provider-timeout',
-        'The comparison took too long. Please try again.',
-        'ProviderTimeoutError'
-      );
-    }
+  const stream = createUIMessageStream<FitUIMessage>({
+    execute: async ({ writer }) => {
+      writer.write({ type: 'start' });
 
-    return fail(
-      502,
-      'generation-failed',
-      'The comparison could not be generated. Please try again.',
-      safeErrorClass(error, 'GenerationError')
-    );
-  }
+      const onStage: FitStageListener = (stage) => {
+        if (!request.signal.aborted) {
+          writeStage(writer, stage);
+        }
+      };
+
+      try {
+        const fitBrief = await generate(
+          roleText,
+          requestId,
+          request.signal,
+          onStage
+        );
+
+        if (request.signal.aborted) {
+          return;
+        }
+
+        writer.write({
+          type: 'data-brief',
+          id: 'fit-brief',
+          data: fitBrief,
+        });
+        writer.write({ type: 'finish' });
+      } catch (error) {
+        if (request.signal.aborted) {
+          return;
+        }
+
+        const timedOut = isProviderTimeout(error, request.signal);
+        const status = timedOut ? 504 : 502;
+        const code: FitApiErrorCode = timedOut
+          ? 'provider-timeout'
+          : 'generation-failed';
+        const message = timedOut
+          ? 'The comparison took too long. Please try again.'
+          : 'The comparison could not be generated. Please try again.';
+        const errorClass = timedOut
+          ? 'ProviderTimeoutError'
+          : safeErrorClass(error, 'GenerationError');
+
+        try {
+          logFailure({
+            requestId,
+            errorClass,
+            status,
+            durationMs: Math.max(0, Math.round(now() - startedAt)),
+          });
+        } catch {
+          // Diagnostics must never alter the public API response.
+        }
+
+        writer.write({
+          type: 'data-error',
+          id: 'fit-error',
+          data: {
+            code,
+            message: FIT_STOPPED_COPY,
+          },
+          transient: true,
+        });
+        writer.write({
+          type: 'error',
+          errorText: message,
+        });
+      }
+    },
+    onError: () => FIT_STOPPED_COPY,
+  });
+
+  return createUIMessageStreamResponse({
+    stream,
+    headers: {
+      ...streamExtraHeaders,
+      'X-Request-Id': requestId,
+    },
+  });
 }

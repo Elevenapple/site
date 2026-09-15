@@ -188,14 +188,14 @@
       "title": "Nomad",
       "organization": "Open source",
       "claim": "Ahmed is building Nomad for people who live across borders — travel history against visa and tax-day clocks (including Schengen 90/180 and 183-day thresholds), with an agent on the same record. Built on Agent Native. Not legal or tax advice.",
-      "ownership": "building",
+      "ownership": "creator",
       "capabilities": [
         "agent-tooling",
         "product-engineering",
         "open-source",
         "zero-to-one"
       ],
-      "status": "building",
+      "status": "current",
       "sources": [
         {
           "id": "nomad-source",

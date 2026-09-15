@@ -1,10 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('../../server/role-fit/generation', () => ({
+  generateFitBrief: vi.fn(async () => {
+    throw new Error('generateFitBrief mock not configured for this test');
+  }),
+}));
+
 import type { FitApiError, FitBrief } from '../../src/features/role-fit/types';
 import {
   handleFitRequest,
   type FitFailureDiagnostic,
 } from '../../server/role-fit/handler';
+import { FIT_STOPPED_COPY } from '../../src/features/role-fit/stages';
 
 const privateRoleText = `PRIVATE ROLE MATERIAL. ${'Build reliable React and TypeScript systems for customer-facing product workflows. '.repeat(8)}`;
 
@@ -50,12 +57,25 @@ function clock(startedAt: number, finishedAt: number) {
     .mockReturnValue(finishedAt);
 }
 
+async function readSseText(response: Response): Promise<string> {
+  return response.text();
+}
+
 describe('role-fit HTTP handler', () => {
-  it('returns a successful no-store response without failure logging', async () => {
+  it('streams a successful no-store UI message response without failure logging', async () => {
     const logFailure = vi.fn<(diagnostic: FitFailureDiagnostic) => void>();
     const generate = vi.fn(
-      async (_roleText: string, requestId: string): Promise<FitBrief> =>
-        briefFor(requestId)
+      async (
+        _roleText: string,
+        requestId: string,
+        _signal: AbortSignal,
+        onStage?: (stage: 1 | 2 | 3) => void
+      ): Promise<FitBrief> => {
+        onStage?.(1);
+        onStage?.(2);
+        onStage?.(3);
+        return briefFor(requestId);
+      }
     );
     const request = requestFor();
 
@@ -70,13 +90,20 @@ describe('role-fit HTTP handler', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toContain('no-store');
     expect(response.headers.get('X-Request-Id')).toBe('request-success');
-    expect((await response.json()) as FitBrief).toMatchObject({
-      meta: { requestId: 'request-success' },
-    });
+    expect(response.headers.get('x-vercel-ai-ui-message-stream')).toBe('v1');
+
+    const body = await readSseText(response);
+    expect(body).toContain('"type":"data-stage"');
+    expect(body).toContain('Reading the role');
+    expect(body).toContain('Matching public claims');
+    expect(body).toContain('Drafting gaps and three questions');
+    expect(body).toContain('"type":"data-brief"');
+    expect(body).toContain('request-success');
     expect(generate).toHaveBeenCalledWith(
       privateRoleText.trim(),
       'request-success',
-      request.signal
+      request.signal,
+      expect.any(Function)
     );
     expect(logFailure).not.toHaveBeenCalled();
   });
@@ -114,7 +141,7 @@ describe('role-fit HTTP handler', () => {
     );
   });
 
-  it('returns fixed provider errors without logging input or error messages', async () => {
+  it('streams fixed provider errors without logging input or error messages', async () => {
     class ProviderFailure extends Error {}
 
     const logFailure = vi.fn<(diagnostic: FitFailureDiagnostic) => void>();
@@ -129,15 +156,13 @@ describe('role-fit HTTP handler', () => {
       takeFitRateLimit: () => ({ allowed: true }),
       generateFitBrief: generate,
     });
-    const body = (await response.json()) as FitApiError;
+    const body = await readSseText(response);
 
-    expect(response.status).toBe(502);
-    expect(body).toEqual({
-      error: {
-        code: 'generation-failed',
-        message: 'The comparison could not be generated. Please try again.',
-      },
-    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-vercel-ai-ui-message-stream')).toBe('v1');
+    expect(body).toContain('"type":"data-error"');
+    expect(body).toContain(FIT_STOPPED_COPY);
+    expect(body).not.toContain('api-key-secret');
     expect(logFailure).toHaveBeenCalledWith({
       requestId: 'request-provider',
       errorClass: 'ProviderFailure',
@@ -147,7 +172,6 @@ describe('role-fit HTTP handler', () => {
     const serializedLog = JSON.stringify(logFailure.mock.calls);
     expect(serializedLog).not.toContain('PRIVATE ROLE MATERIAL');
     expect(serializedLog).not.toContain('api-key-secret');
-    expect(serializedLog).not.toContain(body.error.message);
   });
 
   it('preserves rate-limit status, retry headers, and safe diagnostics', async () => {
@@ -174,7 +198,7 @@ describe('role-fit HTTP handler', () => {
     });
   });
 
-  it('maps provider timeouts to 504 without exposing the thrown error', async () => {
+  it('maps provider timeouts into the stream without exposing the thrown error', async () => {
     const timeout = new Error('private timeout details');
     timeout.name = 'TimeoutError';
     const logFailure = vi.fn<(diagnostic: FitFailureDiagnostic) => void>();
@@ -189,7 +213,12 @@ describe('role-fit HTTP handler', () => {
       },
     });
 
-    expect(response.status).toBe(504);
+    const body = await readSseText(response);
+    expect(response.status).toBe(200);
+    expect(body).toContain('"type":"data-error"');
+    expect(body).toContain('provider-timeout');
+    expect(body).toContain(FIT_STOPPED_COPY);
+    expect(body).not.toContain('private timeout details');
     expect(logFailure).toHaveBeenCalledWith({
       requestId: 'request-timeout',
       errorClass: 'ProviderTimeoutError',

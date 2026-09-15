@@ -14,6 +14,9 @@ Claude Code:
 claude mcp add --transport http paprikaf https://paprikaf.com/api/mcp
 ```
 
+ChatGPT: turn on Developer mode in settings, then add a custom connector with
+`https://paprikaf.com/api/mcp`. No authentication.
+
 Cursor, VS Code, or any client with an `mcp.json`:
 
 ```json
@@ -34,11 +37,32 @@ Cursor, VS Code, or any client with an `mcp.json`:
 | `search_work`  | Approved claims matching a keyword, with source links and caveats.     |
 | `get_project`  | Every claim and public link for one `projectId`.                       |
 | `compare_role` | The role-fit brief for a pasted job description. Rate limited.         |
+| `search`       | ChatGPT compatibility. Same corpus, OpenAI's result shape.             |
+| `fetch`        | ChatGPT compatibility. One record by id.                               |
 
 Every tool is annotated `readOnlyHint: true`. `get_profile` is deliberately
 compact — a few hundred tokens — because it is the first call an agent makes.
 Depth comes from `search_work` and `get_project` once the agent knows the
 question it is answering.
+
+## ChatGPT compatibility
+
+ChatGPT's deep research and company-knowledge modes retrieve only through a tool
+pair named exactly `search` and `fetch`. The names and shapes are OpenAI's:
+
+- `search({ query })` returns `{ results: [{ id, title, url }] }`.
+- `fetch({ id })` returns `{ id, title, text, url, metadata }`.
+- Both return that payload **twice**: as `structuredContent`, and as a
+  JSON-encoded string in `content[0].text`. Returning only one of the two makes
+  the connector look empty in ChatGPT.
+
+`id` accepts a claim id, a project id, or `profile`. The `url` on each result
+prefers an independent public record over Ahmed's own portfolio page, because
+that url is what ChatGPT cites — a link to the artifact is stronger evidence
+than a link back to the claim about it.
+
+Developer mode in ChatGPT accepts arbitrary tools, so the other four work there
+too. The pair exists for the retrieval-only modes, which ignore everything else.
 
 ## Resources
 

@@ -18,6 +18,8 @@ import {
 
 export type ToolResult = {
   content: Array<{ type: 'text'; text: string }>;
+  /** ChatGPT reads this; other clients read the text block. */
+  structuredContent?: Record<string, unknown>;
   isError?: boolean;
 };
 
@@ -26,6 +28,7 @@ export type ToolDefinition = {
   title: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  outputSchema?: Record<string, unknown>;
   /** Only `compare_role` reaches a paid provider, so only it is metered. */
   metered?: boolean;
 };
@@ -123,6 +126,78 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
       additionalProperties: false,
     },
     metered: true,
+  },
+  // ── ChatGPT compatibility ────────────────────────────────────────────────
+  // ChatGPT's deep research and company-knowledge modes retrieve only through
+  // a tool pair named exactly `search` and `fetch`, with the result shape
+  // below. The names are OpenAI's, not ours, so the descriptions carry the
+  // subject to stop another client routing a generic search here.
+  {
+    name: 'search',
+    title: 'Search Ahmed Felfel’s public work',
+    description:
+      'Search Ahmed Felfel’s published claims, projects, and public evidence. ' +
+      'Returns matching records with ids you can pass to fetch. Use this for ' +
+      'any question about Ahmed Felfel’s experience, projects, or background.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'What to look for in Ahmed Felfel’s published work.',
+        },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        results: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              title: { type: 'string' },
+              url: { type: 'string' },
+            },
+            required: ['id', 'title', 'url'],
+          },
+        },
+      },
+      required: ['results'],
+    },
+  },
+  {
+    name: 'fetch',
+    title: 'Fetch one record about Ahmed Felfel',
+    description:
+      'Retrieve the full text of one record about Ahmed Felfel’s work by the ' +
+      'id returned from search. Accepts a claim id, a project id, or ' +
+      '"profile" for the overview.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'A record id returned by search.',
+        },
+      },
+      required: ['id'],
+      additionalProperties: false,
+    },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        title: { type: 'string' },
+        text: { type: 'string' },
+        url: { type: 'string' },
+        metadata: { type: 'object', additionalProperties: { type: 'string' } },
+      },
+      required: ['id', 'title', 'text', 'url'],
+    },
   },
 ];
 
@@ -460,6 +535,118 @@ async function runCompareRole(
   }
 }
 
+/**
+ * ChatGPT requires the payload twice: as `structuredContent` for its own
+ * retrieval path, and as a JSON string in the content array for every other
+ * client. Returning only one of the two makes the connector look empty.
+ */
+function chatgptResult(payload: Record<string, unknown>): ToolResult {
+  return {
+    structuredContent: payload,
+    content: [{ type: 'text', text: JSON.stringify(payload) }],
+  };
+}
+
+/**
+ * ChatGPT cites this url, so prefer an independent public record over Ahmed's
+ * own portfolio page. A link to the artifact is stronger evidence than a link
+ * back to the claim about it.
+ */
+function claimUrl(claim: ApprovedClaim): string {
+  const independent = claim.sources.find(
+    (source) =>
+      source.url !== undefined && source.provenance !== 'ahmed-published-claim'
+  );
+
+  return (
+    independent?.url ??
+    claim.sources.find((source) => source.url !== undefined)?.url ??
+    `${SITE_URL}/#work`
+  );
+}
+
+function runSearch(args: Record<string, unknown>): ToolResult {
+  const query = typeof args.query === 'string' ? args.query.trim() : '';
+
+  if (query.length === 0 || query.length > 300) {
+    return chatgptResult({ results: [] });
+  }
+
+  const results = searchProfile(query, 10).map((hit) => ({
+    id: hit.claim.id,
+    title: `${hit.claim.title} — ${hit.claim.organization}`,
+    url: claimUrl(hit.claim),
+  }));
+
+  return chatgptResult({ results });
+}
+
+function runFetch(args: Record<string, unknown>): ToolResult {
+  const id = typeof args.id === 'string' ? args.id.trim() : '';
+
+  if (id.length === 0) {
+    return toolError('Provide an "id" returned by search.');
+  }
+
+  if (id === 'profile') {
+    const profile = runGetProfile();
+    return chatgptResult({
+      id: 'profile',
+      title: 'Ahmed Felfel — profile',
+      text: profile.content[0].text,
+      url: SITE_URL,
+      metadata: { kind: 'profile', evidenceVersion: evidenceMeta().version },
+    });
+  }
+
+  const claim = getClaim(id);
+
+  if (claim) {
+    return chatgptResult({
+      id: claim.id,
+      title: `${claim.title} — ${claim.organization}`,
+      text: renderClaim(claim),
+      url: claimUrl(claim),
+      metadata: {
+        kind: 'claim',
+        organization: claim.organization,
+        ownership: claim.ownership,
+        status: claim.status,
+        reviewedAt: claim.reviewedAt,
+        ...(claim.projectId ? { projectId: claim.projectId } : {}),
+      },
+    });
+  }
+
+  const project = listProjects().find(
+    (candidate) => candidate.projectId === id
+  );
+
+  if (project) {
+    const claims = project.claimIds
+      .map((claimId) => getClaim(claimId))
+      .filter((entry): entry is ApprovedClaim => entry !== undefined);
+
+    return chatgptResult({
+      id: project.projectId,
+      title: `${project.title} — ${project.organization}`,
+      text: claims.map(renderClaim).join('\n\n'),
+      url: project.links[0]?.url ?? `${SITE_URL}/#work`,
+      metadata: {
+        kind: 'project',
+        organization: project.organization,
+        ownership: project.ownership,
+        status: project.status,
+      },
+    });
+  }
+
+  return toolError(
+    `No record with id "${id}". Use search to get valid ids, or "profile" for ` +
+      'the overview.'
+  );
+}
+
 export async function callTool(
   name: string,
   args: Record<string, unknown>,
@@ -474,6 +661,10 @@ export async function callTool(
       return runGetProject(args);
     case 'compare_role':
       return runCompareRole(args, signal);
+    case 'search':
+      return runSearch(args);
+    case 'fetch':
+      return runFetch(args);
     default:
       return toolError(
         `Unknown tool "${name}". Available tools: ${TOOL_DEFINITIONS.map(

@@ -2805,6 +2805,12 @@ a.role-fit__source:hover {
   color: var(--ink);
 }
 
+/* The section carries its own bottom padding, so the next band does not also
+   need its full top margin. Without this the two stack into dead paper. */
+.mcp + .role-arc {
+  margin-top: 0;
+}
+
 .mcp__intro {
   display: grid;
   grid-template-columns: 4fr 8fr;
@@ -2926,12 +2932,12 @@ a.role-fit__source:hover {
 }
 
 .mcp__hint {
+  max-width: 68ch;
   margin: 0;
   padding: 0 clamp(1rem, 2.4vw, 1.5rem) 1.25rem;
   color: var(--steel);
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.64rem;
-  letter-spacing: 0.03em;
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .mcp__tools {

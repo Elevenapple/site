@@ -60,4 +60,8 @@ Tools: get_profile (start here), search_work, get_project, compare_role.
 The compare_role tool is rate limited because it runs a model; the lookups
 are not.
 
+For ChatGPT, the server also exposes the search and fetch pair that deep
+research and company knowledge retrieve through. Add it as a custom connector
+with Developer mode enabled.
+
 For ownership boundaries and published claims, see /evidence.md.

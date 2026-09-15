@@ -1,0 +1,45 @@
+name: apply-role-fit-empty-desk
+
+on:
+  push:
+    branches: [design/role-fit-empty-desk]
+    paths:
+      - 'role-fit-empty-desk.patch'
+      - '.github/workflows/apply-role-fit-empty-desk.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design/role-fit-empty-desk
+          fetch-depth: 0
+
+      - name: Apply RoleFit empty-desk patch and clean artifacts
+        env:
+          COMMIT_MSG: |
+            fix(role-fit): hide empty OVERLAP/UNKNOWNS/QUESTIONS desk until Compare has results
+
+            Cold state keeps workspace + Compare CTA only. Results columns
+            render after a successful Compare; still three interview questions,
+            no hire score. Show/hide only — no copy or token changes.
+        run: |
+          set -euo pipefail
+          if [ ! -f role-fit-empty-desk.patch ]; then
+            echo "No patch present; skipping (cleanup push)."
+            exit 0
+          fi
+          git fetch origin main
+          git show origin/main:src/features/role-fit/RoleFit.tsx > src/features/role-fit/RoleFit.tsx
+          patch -p1 < role-fit-empty-desk.patch
+          rm -f role-fit-empty-desk.patch .github/workflows/apply-role-fit-empty-desk.yml
+          git config user.name "Ahmed felfel"
+          git config user.email "paprikaf@users.noreply.github.com"
+          git add -A
+          git status
+          git commit -m "$COMMIT_MSG"
+          git push origin HEAD:design/role-fit-empty-desk

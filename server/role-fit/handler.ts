@@ -18,10 +18,7 @@ import type {
   FitApiErrorCode,
   FitBrief,
 } from '../../src/features/role-fit/types.js';
-import {
-  generateFitBrief,
-  type FitStageListener,
-} from './generation.js';
+import { generateFitBrief, type FitStageListener } from './generation.js';
 import { takeFitRateLimit } from './rate-limit.js';
 import {
   FitValidationError,

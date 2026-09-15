@@ -1,0 +1,10 @@
+packages:
+  - '.'
+
+overrides:
+  seroval: ^1.5.3
+
+allowBuilds:
+  '@vgpu/adapter-node': true
+  esbuild: true
+  webgpu: true

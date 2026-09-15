@@ -27,6 +27,7 @@
     "vite.config.ts",
     "api/**/*.ts",
     "server/**/*.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "wgsl-env.d.ts"
   ]
 }

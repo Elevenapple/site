@@ -1,11 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { consumeFitUiMessageStream } from '../../src/features/role-fit/fit-stream';
-import { FIT_STAGE_COPY, FIT_STOPPED_COPY } from '../../src/features/role-fit/stages';
+import {
+  FIT_STAGE_COPY,
+  FIT_STOPPED_COPY,
+} from '../../src/features/role-fit/stages';
 import type { FitBrief } from '../../src/features/role-fit/types';
 
 function sseResponse(chunks: unknown[]): Response {
-  const body = chunks.map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`).join('');
+  const body = chunks
+    .map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`)
+    .join('');
   return new Response(body, {
     status: 200,
     headers: {

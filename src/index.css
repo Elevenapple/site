@@ -167,7 +167,6 @@
   }
 }
 
-
 @supports (width: 100dvw) {
   :root {
     --viewport-width: 100dvw;
@@ -337,7 +336,6 @@
   width: 1rem;
   height: 1rem;
 }
-
 
 .site-nav__contact {
   display: inline-flex;
@@ -602,7 +600,8 @@
   width: var(--viewport-width, 100vw);
   margin-top: clamp(6rem, 12vw, 11rem);
   margin-left: calc(var(--viewport-width, 100vw) / -2);
-  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
+  padding: clamp(5rem, 10vw, 8.5rem)
+    max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   overflow: hidden;
   background: var(--route);
   color: white;
@@ -712,7 +711,12 @@
   padding: clamp(1rem, 2.4vw, 1.6rem);
   border: 2px solid var(--ink);
   background:
-    linear-gradient(135deg, transparent 0 48%, var(--rule-soft) 48% 52%, transparent 52%)
+    linear-gradient(
+        135deg,
+        transparent 0 48%,
+        var(--rule-soft) 48% 52%,
+        transparent 52%
+      )
       top right / 1rem 1rem no-repeat,
     white;
   cursor: pointer;
@@ -1113,6 +1117,21 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  --paper: #f3f6f7;
+  --ink: #15191d;
+}
+
+.role-fit__hatch-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.role-fit__hatch--css .role-fit__hatch-canvas {
+  display: none;
+}
+
+.role-fit__hatch--css {
   background-image: repeating-linear-gradient(
     -45deg,
     transparent 0,
@@ -1122,6 +1141,10 @@
   );
   opacity: var(--hatch-opacity);
   transition: opacity 180ms ease;
+}
+
+.role-fit__hatch--gpu {
+  opacity: 1;
 }
 
 .role-fit__status-plate-copy {
@@ -1164,6 +1187,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .role-fit__hatch {
+    display: none;
+  }
+
+  .role-fit__hatch-canvas {
     display: none;
   }
 
@@ -1880,7 +1907,8 @@ a.role-fit__source:hover {
   width: var(--viewport-width, 100vw);
   margin-top: clamp(6rem, 12vw, 11rem);
   margin-left: calc(var(--viewport-width, 100vw) / -2);
-  padding: clamp(5rem, 10vw, 9rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
+  padding: clamp(5rem, 10vw, 9rem)
+    max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   background: var(--ink);
   color: var(--paper);
 }
@@ -2077,8 +2105,10 @@ a.role-fit__source:hover {
   position: relative;
   left: 50%;
   width: var(--viewport-width, 100vw);
-  margin: clamp(6rem, 12vw, 11rem) 0 -7rem calc(var(--viewport-width, 100vw) / -2);
-  padding: clamp(5rem, 10vw, 8.5rem) max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
+  margin: clamp(6rem, 12vw, 11rem) 0 -7rem
+    calc(var(--viewport-width, 100vw) / -2);
+  padding: clamp(5rem, 10vw, 8.5rem)
+    max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
   background: var(--route);
   color: white;
 }

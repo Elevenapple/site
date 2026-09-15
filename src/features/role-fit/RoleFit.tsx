@@ -32,6 +32,7 @@ import {
   FIT_STOPPED_COPY,
   type FitStageId,
 } from './fit-stream';
+import { RoleFitHatch } from './RoleFitHatch';
 
 const MIN_ROLE_LENGTH = 250;
 const MAX_ROLE_LENGTH = 12_000;
@@ -1074,7 +1075,7 @@ export function RoleFit() {
                     aria-live="polite"
                     aria-atomic="true"
                   >
-                    <div className="role-fit__hatch" aria-hidden="true" />
+                    <RoleFitHatch stage={requestState.stage} />
                     <div className="role-fit__status-plate-copy">
                       <p className="role-fit__desk-label">Compare</p>
                       <p className="role-fit__stage">{requestState.label}</p>

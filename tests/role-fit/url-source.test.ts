@@ -8,10 +8,13 @@ import {
 } from '../../server/role-fit/url-source';
 import { MIN_ROLE_TEXT_LENGTH } from '../../server/role-fit/validation';
 
+// A synthetic posting shaped like a real job board page: nav and footer chrome,
+// inline style and script blocks, a config blob, entities, and list markup.
+// Vendoring an actual page instead drags in that board's own client-side API
+// keys and script bundles — a secret-scanning alert and 85KB of noise, for no
+// extra coverage.
 const jobPageHtml = readFileSync(
-  fileURLToPath(
-    new URL('./fixtures/greenhouse-job-page.html', import.meta.url)
-  ),
+  fileURLToPath(new URL('./fixtures/job-page.html', import.meta.url)),
   'utf-8'
 );
 
@@ -81,12 +84,28 @@ describe('htmlToText', () => {
     ).toBe('R&D — 5+ years "senior"');
   });
 
-  it('reads a real job posting page into usable role text', () => {
+  it('reads a job board page into usable role text', () => {
     const text = htmlToText(jobPageHtml);
 
     expect(text.length).toBeGreaterThan(MIN_ROLE_TEXT_LENGTH);
-    expect(text).toContain('Forward Deployed Engineer');
+    expect(text).toContain('Staff Product Engineer');
+    expect(text).toContain(
+      '- Strong TypeScript and React fundamentals — 5+ years.'
+    );
+    expect(text).toContain('Remote — North America');
+  });
+
+  it('leaves no markup, script, style, or chrome in the extracted text', () => {
+    const text = htmlToText(jobPageHtml);
+
     expect(text).not.toMatch(/<\/?[a-z]/i);
-    expect(text).not.toContain('function(');
+    expect(text).not.toContain('window.ENV');
+    expect(text).not.toContain('function ');
+    expect(text).not.toContain('sessionStorage');
+    expect(text).not.toContain('system-ui');
+    expect(text).not.toContain('Back to jobs'); // nav
+    expect(text).not.toContain('Privacy policy'); // footer
+    // A decoded "&" is correct ("design & go-to-market"); an encoded one is not.
+    expect(text).not.toMatch(/&(amp|lt|gt|quot|rsquo|mdash|nbsp|#\d+);/);
   });
 });

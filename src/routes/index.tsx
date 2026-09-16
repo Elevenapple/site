@@ -1,10 +1,36 @@
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { experience, expertise, projects, publicLinks } from '@/data/portfolio';
+import {
+  countByFacet,
+  filterProjects,
+  parseFacets,
+  serializeFacets,
+  toggleFacet,
+  WORK_FACET_LABELS,
+  WORK_FACETS,
+  type WorkFacet,
+} from '@/features/work/facets';
 import { McpConnect } from '@/features/mcp/McpConnect';
 import { RoleFit } from '@/features/role-fit/RoleFit';
 
 function IndexComponent() {
+  const navigate = useNavigate({ from: '/' });
+  const { work } = Route.useSearch();
+  const selected = parseFacets(work);
+  const counts = countByFacet(projects);
+  const visible = filterProjects(projects, selected);
+
+  // replace, not push, so filtering does not fill the back button with steps
+  // between a visitor and the page they arrived from.
+  const setFacets = (next: WorkFacet[]) => {
+    void navigate({
+      search: { work: serializeFacets(next) },
+      replace: true,
+      resetScroll: false,
+    });
+  };
+
   return (
     <div className="portfolio-page">
       <section className="portfolio-hero" aria-labelledby="portfolio-title">
@@ -42,8 +68,30 @@ function IndexComponent() {
           <p>My role and where each project stands today.</p>
         </header>
 
+        <div className="work-filter" role="group" aria-label="Filter work">
+          <button
+            type="button"
+            className="work-filter__chip"
+            aria-pressed={selected.length === 0}
+            onClick={() => setFacets([])}
+          >
+            All work <span>{projects.length}</span>
+          </button>
+          {WORK_FACETS.map((facet) => (
+            <button
+              key={facet}
+              type="button"
+              className="work-filter__chip"
+              aria-pressed={selected.includes(facet)}
+              onClick={() => setFacets(toggleFacet(selected, facet))}
+            >
+              {WORK_FACET_LABELS[facet]} <span>{counts[facet]}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="evidence-list">
-          {projects.map((project, index) => (
+          {visible.map((project, index) => (
             <article className="evidence-row" key={project.id}>
               <div className="evidence-row__label">
                 <span>{project.ownership}</span>
@@ -203,5 +251,10 @@ function IndexComponent() {
 }
 
 export const Route = createFileRoute('/')({
+  // Kept as the raw string so the URL reads ?work=built,building rather than a
+  // JSON-encoded array. parseFacets is what turns it into trusted values.
+  validateSearch: (search: Record<string, unknown>): { work?: string } => ({
+    work: serializeFacets(parseFacets(search.work)),
+  }),
   component: IndexComponent,
 });

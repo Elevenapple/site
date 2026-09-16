@@ -3,9 +3,13 @@ export type PortfolioLink = {
   href: string;
 };
 
+import type { WorkFacet } from '@/features/work/facets';
+
 export type Project = {
   id: string;
   ownership: string;
+  /** Filter buckets; `ownership` stays the human label shown on the row. */
+  facets: WorkFacet[];
   organization: string;
   title: string;
   summary: string;
@@ -25,6 +29,7 @@ export const projects: Project[] = [
   {
     id: 'academy',
     ownership: 'Built',
+    facets: ['built'],
     organization: 'Builder.io',
     title: 'Builder Academy',
     summary:
@@ -35,6 +40,7 @@ export const projects: Project[] = [
   {
     id: 'mcp',
     ownership: 'Built',
+    facets: ['built'],
     organization: 'Builder.io',
     title: 'Builder CMS MCP Server',
     summary:
@@ -50,6 +56,7 @@ export const projects: Project[] = [
   {
     id: 'operational-ai',
     ownership: 'Current work',
+    facets: ['building'],
     organization: 'Builder.io',
     title: 'Internal AI tools for GTM',
     summary:
@@ -60,6 +67,7 @@ export const projects: Project[] = [
   {
     id: 'agent-native',
     ownership: 'Contributor',
+    facets: ['contributed'],
     organization: 'Open source',
     title: 'Agent Native',
     summary:
@@ -75,6 +83,7 @@ export const projects: Project[] = [
   {
     id: 'discogs-sdk',
     ownership: 'Creator + maintainer',
+    facets: ['built'],
     organization: 'Open source',
     title: '@crate.ai/discogs-sdk',
     summary:
@@ -94,6 +103,7 @@ export const projects: Project[] = [
   {
     id: 'nomad',
     ownership: 'Building',
+    facets: ['built', 'building'],
     organization: 'Open source',
     title: 'Nomad',
     summary:
@@ -113,6 +123,7 @@ export const projects: Project[] = [
   {
     id: 'galite',
     ownership: 'Building',
+    facets: ['built', 'building'],
     organization: 'Independent',
     title: 'Galite',
     summary:
@@ -181,4 +192,5 @@ export const publicLinks = {
   email: 'mailto:ahmed@galite.ai',
   github: 'https://github.com/paprikaf',
   linkedin: 'https://www.linkedin.com/in/ahmed-felfel-080895/',
+  repo: 'https://github.com/paprikaf/site',
 };

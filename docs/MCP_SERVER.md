@@ -8,16 +8,47 @@ published on the site, which is why it needs no OAuth.
 
 ## Connect
 
-Claude Code:
+The homepage hero offers four one-line ways in: a prompt, the Claude Code
+command, the skill, and this URL. This section has the steps for each client.
+The client labels were checked against each vendor's docs in September 2026.
+ChatGPT renamed Connectors to Apps in December 2025 and to Plugins in July
+2026, so expect these labels to change again.
+
+**Claude** (web and desktop, any plan; Free allows one custom connector):
+open **Customize → Connectors**, click **+**, choose **Add custom connector**,
+name it `paprikaf`, and paste the URL. In a chat, switch it on from
+**+ → Connectors**.
+[Help article](https://support.claude.com/en/articles/11175166).
+
+**ChatGPT** (web; Plus, Pro, Business, Enterprise, and Edu; on Business and
+Enterprise an admin has to allow developer mode first): open
+**Settings → Security and login** and turn on **Developer mode**. On the
+[Plugins](https://chatgpt.com/plugins) page, click **+**, name the app
+`paprikaf`, paste the URL, and choose **No Authentication**. In a chat, open
+**+ → Developer mode** and select it.
+[Developer mode guide](https://developers.openai.com/api/docs/guides/developer-mode).
+
+**Claude Code.** The default scope covers only the current project, so pass
+`-s user` to make the server available in every project:
 
 ```bash
-claude mcp add --transport http paprikaf https://paprikaf.com/api/mcp
+claude mcp add -s user -t http paprikaf https://paprikaf.com/api/mcp
 ```
 
-ChatGPT: turn on Developer mode in settings, then add a custom connector with
-`https://paprikaf.com/api/mcp`. No authentication.
+**Codex.** The CLI, the IDE extension, and the ChatGPT desktop app share this
+config:
 
-Cursor, VS Code, or any client with an `mcp.json`:
+```bash
+codex mcp add paprikaf --url https://paprikaf.com/api/mcp
+```
+
+**Gemini CLI:**
+
+```bash
+gemini mcp add --transport http paprikaf https://paprikaf.com/api/mcp
+```
+
+**Cursor**, in `~/.cursor/mcp.json`:
 
 ```json
 {
@@ -29,6 +60,31 @@ Cursor, VS Code, or any client with an `mcp.json`:
 }
 ```
 
+**VS Code**, in `.vscode/mcp.json`. VS Code reads `servers`, not
+`mcpServers`:
+
+```json
+{
+  "servers": {
+    "paprikaf": {
+      "type": "http",
+      "url": "https://paprikaf.com/api/mcp"
+    }
+  }
+}
+```
+
+**Any other client:** Streamable HTTP, with no auth and no headers.
+
+### Without MCP
+
+- **Prompt.** Any assistant that can open a page can start from
+  `Read paprikaf.com/llms.txt and tell me what Ahmed has built`.
+- **Skill.** `npx skills add paprikaf/site --skill paprikaf` installs
+  [`skills/paprikaf/SKILL.md`](../skills/paprikaf/SKILL.md). It tells an agent
+  where the evidence lives and what not to overclaim. Pass `--skill`, because
+  the repo also vendors the vgpu skill.
+
 ## Tools
 
 | Tool           | Purpose                                                                |
@@ -39,6 +95,23 @@ Cursor, VS Code, or any client with an `mcp.json`:
 | `compare_role` | The role-fit brief for a pasted job description. Rate limited.         |
 | `search`       | ChatGPT compatibility. Same corpus, OpenAI's result shape.             |
 | `fetch`        | ChatGPT compatibility. One record by id.                               |
+
+## Prompts
+
+| Prompt      | What it starts                                                      |
+| ----------- | ------------------------------------------------------------------- |
+| `overview`  | A sourced summary of the public work, and what the evidence misses. |
+| `check_fit` | Asks for a job description, then runs `compare_role` on it.         |
+
+Claude Code lists them as `/paprikaf:overview` and `/paprikaf:check_fit`.
+Neither takes arguments, because Claude Code splits prompt arguments on
+whitespace and a job description would arrive as its first word.
+
+## Server instructions
+
+The `instructions` string puts the rules against overclaiming before the tool
+order. ChatGPT asks for the first 512 characters to make sense on their own,
+and a test holds the rules inside that window.
 
 Every tool is annotated `readOnlyHint: true`. `get_profile` is deliberately
 compact — a few hundred tokens — because it is the first call an agent makes.

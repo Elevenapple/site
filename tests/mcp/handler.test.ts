@@ -5,7 +5,13 @@ import { LATEST_PROTOCOL_VERSION } from '../../server/mcp/protocol';
 import approvedClaims from '../../content/approved-claims.json';
 
 type ToolContent = { type: string; text: string };
-type ToolCallResult = { content: ToolContent[]; isError?: boolean };
+type ToolCallResult = {
+  content: ToolContent[];
+  structuredContent?: Record<string, unknown>;
+  isError?: boolean;
+};
+
+type SearchResult = { id: string; title: string; url: string };
 
 let clientCounter = 0;
 
@@ -184,6 +190,8 @@ describe('MCP tools', () => {
       'search_work',
       'get_project',
       'compare_role',
+      'search',
+      'fetch',
     ]);
 
     for (const tool of payload.result.tools) {
@@ -347,5 +355,106 @@ describe('public-only guarantee', () => {
     for (const url of urls) {
       expect(url.startsWith('https://')).toBe(true);
     }
+  });
+});
+
+describe('ChatGPT compatibility', () => {
+  // ChatGPT's deep research and company-knowledge modes retrieve only through
+  // a `search` + `fetch` pair with OpenAI's exact result shape. Getting any of
+  // this wrong makes the connector silently return nothing.
+  it('declares search and fetch with an output schema', async () => {
+    const response = await handleMcpRequest(post(rpc('tools/list')));
+    const payload = (await response.json()) as {
+      result: {
+        tools: Array<{
+          name: string;
+          inputSchema: { properties: Record<string, unknown> };
+          outputSchema?: Record<string, unknown>;
+        }>;
+      };
+    };
+
+    const search = payload.result.tools.find((tool) => tool.name === 'search');
+    const fetchTool = payload.result.tools.find(
+      (tool) => tool.name === 'fetch'
+    );
+
+    expect(Object.keys(search?.inputSchema.properties ?? {})).toEqual([
+      'query',
+    ]);
+    expect(Object.keys(fetchTool?.inputSchema.properties ?? {})).toEqual([
+      'id',
+    ]);
+    expect(search?.outputSchema).toBeDefined();
+    expect(fetchTool?.outputSchema).toBeDefined();
+  });
+
+  it('returns search results as both structuredContent and a JSON string', async () => {
+    const result = await callTool('search', { query: 'MCP server' });
+
+    const structured = result.structuredContent as { results: SearchResult[] };
+    expect(structured.results.length).toBeGreaterThan(0);
+
+    // OpenAI requires the same value twice; clients read one or the other.
+    const duplicated = JSON.parse(result.content[0].text) as {
+      results: SearchResult[];
+    };
+    expect(duplicated).toEqual(structured);
+
+    for (const entry of structured.results) {
+      expect(Object.keys(entry).sort()).toEqual(['id', 'title', 'url']);
+      expect(entry.url.startsWith('https://')).toBe(true);
+    }
+  });
+
+  it('returns an empty result set rather than an error for a miss', async () => {
+    const result = await callTool('search', { query: 'zzzzqqq nothing here' });
+
+    expect(result.isError).toBeUndefined();
+    expect(
+      (result.structuredContent as { results: SearchResult[] }).results
+    ).toHaveLength(0);
+  });
+
+  it('fetches every id that search hands back', async () => {
+    const search = await callTool('search', { query: 'zero to one' });
+    const results = (search.structuredContent as { results: SearchResult[] })
+      .results;
+
+    expect(results.length).toBeGreaterThan(0);
+
+    for (const entry of results) {
+      const fetched = await callTool('fetch', { id: entry.id });
+      const document = fetched.structuredContent as {
+        id: string;
+        title: string;
+        text: string;
+        url: string;
+      };
+
+      expect(document.id).toBe(entry.id);
+      expect(document.text.length).toBeGreaterThan(0);
+      expect(document.url.startsWith('https://')).toBe(true);
+      expect(JSON.parse(fetched.content[0].text)).toEqual(document);
+    }
+  });
+
+  it('fetches a project id and the profile overview', async () => {
+    const project = await callTool('fetch', { id: 'academy' });
+    expect((project.structuredContent as { text: string }).text).toContain(
+      'Builder Academy'
+    );
+
+    const profile = await callTool('fetch', { id: 'profile' });
+    expect((profile.structuredContent as { text: string }).text).toContain(
+      'Ahmed Felfel'
+    );
+  });
+
+  it('reports an unknown id instead of inventing a document', async () => {
+    const result = await callTool('fetch', { id: 'not-a-real-record' });
+
+    expect(result.isError).toBe(true);
+    expect(textOf(result)).toContain('search');
   });
 });

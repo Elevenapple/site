@@ -18,6 +18,15 @@ const OPTIONS: ConnectOption[] = [
     snippet: `claude mcp add --transport http paprikaf ${MCP_ENDPOINT}`,
   },
   {
+    id: 'chatgpt',
+    label: 'ChatGPT',
+    hint:
+      'Turn on Developer mode in ChatGPT settings, then add a custom connector ' +
+      'with this URL. Deep research and company knowledge retrieve through the ' +
+      'search and fetch tools.',
+    snippet: MCP_ENDPOINT,
+  },
+  {
     id: 'mcp-json',
     label: 'Cursor · VS Code',
     hint: 'Add to your MCP config file.',
@@ -69,8 +78,8 @@ export function McpConnect() {
           <h2 id="mcp-title">Or ask from your own tools.</h2>
           <p>
             This site runs a read-only MCP server over the same public evidence.
-            Point Claude Code, Cursor, or any MCP client at it and ask about my
-            work there instead of reading this page.
+            Point Claude Code, ChatGPT, Cursor, or any MCP client at it and ask
+            about my work there instead of reading this page.
           </p>
         </div>
       </div>

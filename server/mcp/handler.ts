@@ -103,6 +103,7 @@ function handleToolsList(message: JsonRpcRequest): JsonRpcResponse {
       title: tool.title,
       description: tool.description,
       inputSchema: tool.inputSchema,
+      ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {}),
       annotations: {
         title: tool.title,
         readOnlyHint: true,

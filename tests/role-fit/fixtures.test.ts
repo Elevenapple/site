@@ -14,15 +14,17 @@ const fixturesDir = fileURLToPath(new URL('./fixtures', import.meta.url));
 
 /** Prefixes that identify a real credential regardless of entropy. */
 const CREDENTIAL_PATTERNS: Array<[string, RegExp]> = [
-  ['Google API key', /AIza[0-9A-Za-z_-]{35}/],
+  // Word-anchored: these alphabets also occur inside base64 payloads such as
+  // lockfile integrity hashes, and an unanchored match there is a false alarm.
+  ['Google API key', /\bAIza[0-9A-Za-z_-]{35}\b/],
   ['Google OAuth client', /[0-9]+-[0-9a-z]{32}\.apps\.googleusercontent\.com/],
-  ['AWS access key', /AKIA[0-9A-Z]{16}/],
+  ['AWS access key', /\bAKIA[0-9A-Z]{16}\b/],
   ['GitHub token', /gh[pousr]_[0-9A-Za-z]{36}/],
   ['Slack token', /xox[abprs]-[0-9A-Za-z-]{10,}/],
   ['Stripe key', /[sr]k_(live|test)_[0-9A-Za-z]{24}/],
   ['Anthropic key', /sk-ant-[0-9A-Za-z_-]{20,}/],
   ['OpenAI key', /sk-proj-[0-9A-Za-z_-]{20,}/],
-  ['reCAPTCHA site key', /6L[0-9A-Za-z_-]{38}/],
+  ['reCAPTCHA site key', /\b6L[0-9A-Za-z_-]{38}\b/],
   ['Private key block', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
 ];
 

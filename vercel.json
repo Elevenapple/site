@@ -19,6 +19,9 @@
     },
     "api/mcp.ts": {
       "maxDuration": 30
+    },
+    "api/role-source.ts": {
+      "maxDuration": 15
     }
   },
   "rewrites": [

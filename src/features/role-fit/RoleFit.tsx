@@ -4,6 +4,7 @@ import {
   Check,
   FileText,
   FileUp,
+  Link2,
   LoaderCircle,
   Paperclip,
   X,
@@ -74,6 +75,20 @@ const API_ERROR_MESSAGES: Partial<Record<FitApiErrorCode, string>> = {
     'The comparison did not finish. Try again or read Ahmed’s résumé.',
   'provider-timeout':
     'The comparison took too long to finish. Try again in a moment.',
+};
+
+type UrlState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'loaded'; label: string }
+  | { status: 'error'; message: string };
+
+type RoleSourcePayload = {
+  text: string;
+  title: string | null;
+  company: string | null;
+  sourceUrl: string;
+  via: 'greenhouse' | 'page';
 };
 
 type RequestState =
@@ -247,6 +262,24 @@ function getApiError(payload: unknown): FitApiError | null {
   }
 
   return payload as FitApiError;
+}
+
+function isRoleSourcePayload(value: unknown): value is RoleSourcePayload {
+  return (
+    isRecord(value) &&
+    typeof value.text === 'string' &&
+    (value.title === null || typeof value.title === 'string') &&
+    (value.company === null || typeof value.company === 'string') &&
+    typeof value.sourceUrl === 'string'
+  );
+}
+
+function hostLabel(value: string): string | null {
+  try {
+    return new URL(value).hostname.replace(/^www\./, '');
+  } catch {
+    return null;
+  }
 }
 
 function formatGeneratedAt(value: string): string | null {
@@ -501,6 +534,8 @@ function FitBriefView({ brief }: { brief: FitBrief }) {
 export function RoleFit() {
   const [roleText, setRoleText] = useState('');
   const [roleFiles, setRoleFiles] = useState<RoleFileState[]>([]);
+  const [roleUrl, setRoleUrl] = useState('');
+  const [urlState, setUrlState] = useState<UrlState>({ status: 'idle' });
   const [isDragActive, setIsDragActive] = useState(false);
   const [requestState, setRequestState] = useState<RequestState>({
     status: 'idle',
@@ -508,6 +543,7 @@ export function RoleFit() {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const urlControllerRef = useRef<AbortController | null>(null);
   const fileReadSequenceRef = useRef(0);
   const fileReadersRef = useRef(new Map<string, AbortController>());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -541,6 +577,7 @@ export function RoleFit() {
 
     return () => {
       abortControllerRef.current?.abort();
+      urlControllerRef.current?.abort();
       fileReaders.forEach((controller) => controller.abort());
       fileReaders.clear();
     };
@@ -727,6 +764,96 @@ export function RoleFit() {
     setRequestState({ status: 'idle' });
     setNotice('Sample role loaded. Edit it or compare it as is.');
     focusTextarea(true);
+  };
+
+  const handleLoadUrl = async () => {
+    const value = roleUrl.trim();
+
+    if (value.length === 0 || isLoading || urlState.status === 'loading') {
+      return;
+    }
+
+    urlControllerRef.current?.abort();
+    const controller = new AbortController();
+    urlControllerRef.current = controller;
+
+    setUrlState({ status: 'loading' });
+    setFieldError(null);
+    setNotice(null);
+
+    try {
+      const response = await fetch('/api/role-source', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: value }),
+        signal: controller.signal,
+      });
+
+      if (urlControllerRef.current !== controller) return;
+
+      const payload: unknown = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const apiError = getApiError(payload);
+        setUrlState({
+          status: 'error',
+          message:
+            apiError?.error.message ??
+            'That link could not be read. Paste the description instead.',
+        });
+        return;
+      }
+
+      if (!isRoleSourcePayload(payload)) {
+        setUrlState({
+          status: 'error',
+          message:
+            'That link did not return a readable role. Paste the description instead.',
+        });
+        return;
+      }
+
+      const where =
+        hostLabel(payload.sourceUrl) ?? hostLabel(value) ?? 'the link';
+      const what =
+        [payload.title, payload.company].filter(Boolean).join(' · ') ||
+        'the posting';
+
+      // Appending rather than replacing keeps anything the visitor already
+      // typed, and putting the text in the textarea lets them see and correct
+      // what was pulled before it is compared.
+      setRoleText((current) =>
+        current.trim().length > 0
+          ? `${current.trim()}\n\n${payload.text}`
+          : payload.text
+      );
+      setUrlState({
+        status: 'loaded',
+        label: `Loaded ${what} from ${where}. Check it before comparing.`,
+      });
+      setNotice('Role loaded from the link.');
+      focusTextarea(true);
+    } catch {
+      if (controller.signal.aborted) return;
+
+      setUrlState({
+        status: 'error',
+        message:
+          'The link could not be loaded. Check your connection, or paste the description instead.',
+      });
+    } finally {
+      if (urlControllerRef.current === controller) {
+        urlControllerRef.current = null;
+      }
+    }
+  };
+
+  const handleUrlKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    // Enter in this field means "load this link", never "run the comparison".
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      void handleLoadUrl();
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -917,8 +1044,12 @@ export function RoleFit() {
   const handleReset = () => {
     fileReadersRef.current.forEach((controller) => controller.abort());
     fileReadersRef.current.clear();
+    urlControllerRef.current?.abort();
+    urlControllerRef.current = null;
     setRoleText('');
     setRoleFiles([]);
+    setRoleUrl('');
+    setUrlState({ status: 'idle' });
     setIsDragActive(false);
     setRequestState({ status: 'idle' });
     setFieldError(null);
@@ -1046,7 +1177,48 @@ export function RoleFit() {
                   disabled={isLoading}
                 />
 
-                <div className="role-fit__attach">
+                <div className="role-fit__sources">
+                  <div className="role-fit__url">
+                    <Link2 aria-hidden="true" />
+                    <input
+                      type="url"
+                      id="role-fit-url"
+                      value={roleUrl}
+                      onChange={(event) => {
+                        setRoleUrl(event.target.value);
+                        if (urlState.status !== 'loading') {
+                          setUrlState({ status: 'idle' });
+                        }
+                      }}
+                      onKeyDown={handleUrlKeyDown}
+                      placeholder="Paste a job posting link"
+                      aria-label="Job posting link"
+                      aria-describedby="role-fit-source-help"
+                      spellCheck={false}
+                      autoComplete="off"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      className="role-fit__url-load"
+                      onClick={() => void handleLoadUrl()}
+                      disabled={
+                        isLoading ||
+                        urlState.status === 'loading' ||
+                        roleUrl.trim().length === 0
+                      }
+                    >
+                      {urlState.status === 'loading' ? (
+                        <>
+                          <LoaderCircle aria-hidden="true" />
+                          Loading
+                        </>
+                      ) : (
+                        'Load'
+                      )}
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     className="role-fit__attach-button"
@@ -1056,19 +1228,32 @@ export function RoleFit() {
                         ? 'true'
                         : undefined
                     }
-                    aria-describedby="role-fit-file-help"
+                    aria-describedby="role-fit-source-help"
                   >
                     <Paperclip aria-hidden="true" />
                     {roleFiles.length >= MAX_FILES
                       ? `${MAX_FILES} files added`
                       : 'Attach files'}
                   </button>
-                  <p id="role-fit-file-help">
-                    or drop them anywhere on this panel · PDF, DOCX, TXT, or
-                    Markdown · up to {MAX_FILES} files · {MAX_FILE_SIZE_LABEL}{' '}
-                    each
-                  </p>
                 </div>
+
+                <p id="role-fit-source-help" className="role-fit__source-help">
+                  Links work on job boards that publish the text in the page.
+                  Files can be dropped anywhere on this panel · PDF, DOCX, TXT,
+                  or Markdown · up to {MAX_FILES} files · {MAX_FILE_SIZE_LABEL}{' '}
+                  each
+                </p>
+
+                {urlState.status === 'error' ? (
+                  <p className="role-fit__url-note is-error" role="alert">
+                    {urlState.message}
+                  </p>
+                ) : urlState.status === 'loaded' ? (
+                  <p className="role-fit__url-note is-loaded" role="status">
+                    <Check aria-hidden="true" />
+                    {urlState.label}
+                  </p>
+                ) : null}
 
                 <input
                   ref={fileInputRef}

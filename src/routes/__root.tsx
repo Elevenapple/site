@@ -1,5 +1,6 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { Nav } from '@/components/Nav';
+import { SiteFooter } from '@/components/SiteFooter';
 
 function RootComponent() {
   return (
@@ -11,6 +12,7 @@ function RootComponent() {
       <main id="main-content">
         <Outlet />
       </main>
+      <SiteFooter />
     </div>
   );
 }

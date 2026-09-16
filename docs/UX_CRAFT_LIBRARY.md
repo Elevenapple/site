@@ -91,6 +91,41 @@ Purpose: nourish world-class UX judgment for paprikaf.com. Prefer primary source
 5. **Partner lanes** — Copy owns words; Design owns flair; QA owns function; Ops owns deploy.
 6. **Study before swing** — on a new visual thread, re-ground in this library + Sekei briefly, then propose concrete before/after.
 
+## Applied from Sekei (2026-09-15)
+
+Read `sekeidesign/sekei-xyz` rather than the rendered page, and took the
+paradigms, not the surface. Sekei is soft, rounded and light-grey; paprikaf is
+paper/ink/steel at radius 0. Copying the look would be the "pasting another
+aesthetic" failure the brutalism entries warn about.
+
+**Taken**
+
+- **Multi-select filters mirrored to the URL.** `?work=built,building`, so a
+  filtered view is shareable. Unknown slugs are dropped rather than treated as
+  an error, so a stale link still renders. Serialised in a fixed order, so one
+  selection has exactly one URL.
+- **Counts trailing every label.** At seven projects the tally does more work
+  than the filtering does — "built 5, contributed 1" answers the credibility
+  question before anyone clicks.
+- **Build provenance in the footer.** Sekei fetches the latest commit from the
+  GitHub API hourly; this site is static, so the sha is baked in at build time
+  from `VERCEL_GIT_COMMIT_SHA` with a local `git` fallback. Same claim, no
+  request per visitor. A site that says it is maintained should show it.
+- **`aria-pressed` toggle buttons**, not links, because the selection is
+  multi-value and each chip has an on/off state.
+
+**Deliberately not taken**
+
+- The rounded pill and panel language, and the fixed identity sidebar. Both are
+  Sekei's aesthetic, not a paradigm.
+- The live-preview mounting system (`light`/`heavy` previews, reserved preview
+  heights, unmounting offscreen canvases). It is the best idea in that repo, but
+  this site has one embedded demo, not a feed of them. Revisit if the work rows
+  ever carry running demos — the reserved-height detail in particular, which
+  keeps mount and unmount from shifting layout.
+- Their divider discipline ("dividers sit between posts, so the feed doesn't end
+  on one"). Already correct here via `:not(:last-child)`.
+
 ## Refresh cadence
 
 When Exa/Parallel (or web) is available, add 1–2 new primary sources per month; never let SEO listicles displace the canon above.

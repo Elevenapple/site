@@ -11,6 +11,13 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+
+    /* Tests reach into src, which uses the @ alias. */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,

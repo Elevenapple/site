@@ -499,6 +499,57 @@
   line-height: 1.45;
 }
 
+/* Square, hard-edged chips rather than the soft pills this pattern usually
+   wears — the counts are the point, not the container. */
+.work-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+.work-filter__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper-2);
+  color: var(--steel-deep);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 750;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.work-filter__chip:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.work-filter__chip[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.work-filter__chip span {
+  color: var(--steel-mid);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.work-filter__chip[aria-pressed='true'] span {
+  color: var(--route-softer);
+}
+
 .evidence-row {
   display: grid;
   grid-template-columns: 2fr 7fr 3fr;
@@ -3132,4 +3183,45 @@ a.role-fit__source:hover {
     border-top: 1px solid var(--rule);
     border-left: 0;
   }
+}
+
+/* ── Site footer ──────────────────────────────────────────────────────────
+   Build provenance: the commit this page was built from. A site that says it
+   is maintained should be able to show it. */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding: 1.5rem
+    max(1.25rem, calc((var(--viewport-width, 100vw) - 1240px) / 2));
+  border-top: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--steel);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+}
+
+.site-footer a {
+  color: var(--steel-deep);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.site-footer a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.site-footer__build {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.site-footer__sha {
+  color: var(--ink);
+  font-weight: 700;
 }

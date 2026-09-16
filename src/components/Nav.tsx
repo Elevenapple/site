@@ -33,12 +33,9 @@ export function Nav() {
   return (
     <nav className="site-nav" aria-label="Primary navigation">
       <div className="site-nav__inner">
-        <Link
-          className="site-nav__brand"
-          to="/"
-          aria-label="Ahmed Felfel, home"
-          onClick={closeMenu}
-        >
+        {/* No aria-label: the link's own text is its name. An aria-label that
+            did not contain the visible text would fail Label in Name. */}
+        <Link className="site-nav__brand" to="/" onClick={closeMenu}>
           <img
             className="site-nav__mark"
             src="/brand-mark.png"

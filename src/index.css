@@ -1237,135 +1237,225 @@
   text-transform: uppercase;
 }
 
-.role-fit__status-plate {
+/* ── Role-fit wait plate ──────────────────────────────────────────────────
+   Fifteen seconds across three named stages. The gradient behind says the work
+   is running; the pill says what is running; the track says how far. */
+.wait-plate {
+  /* The stage colour lives here, not in the shader, so the plate still tells
+     the story on a machine with no WebGPU. Pale tints keep the ink readable. */
+  --wait-soft: var(--paper-2);
+  --wait-tint: var(--steel);
+
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1.25rem;
+  flex: 1 1 100%;
+  min-height: 8rem;
   align-items: center;
-  min-width: min(100%, 22rem);
-  min-height: 3.6rem;
+  gap: 1.25rem 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 1fr auto;
   overflow: hidden;
-  padding: 0.8rem 1.2rem;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
   border: 2px solid var(--ink);
-  border-radius: 0;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--wait-soft);
   box-shadow: var(--shadow-md);
-  --hatch-density: 1;
-  --hatch-gap: 10px;
-  --hatch-stroke: 1px;
-  --hatch-opacity: 0.07;
+  transition: background-color 900ms ease;
 }
 
-.role-fit__status-plate[data-stage='1'] {
-  --hatch-density: 1;
-  --hatch-gap: 11px;
-  --hatch-opacity: 0.06;
+.wait-plate[data-stage='2'] {
+  --wait-soft: var(--route-soft);
+  --wait-tint: var(--route);
 }
 
-.role-fit__status-plate[data-stage='2'] {
-  --hatch-density: 2;
-  --hatch-gap: 8px;
-  --hatch-opacity: 0.1;
+.wait-plate[data-stage='3'] {
+  --wait-soft: var(--warn-wash);
+  --wait-tint: var(--checkpoint);
 }
 
-.role-fit__status-plate[data-stage='3'] {
-  --hatch-density: 3;
-  --hatch-gap: 5px;
-  --hatch-opacity: 0.14;
-}
-
-.role-fit__hatch {
+.wait-plate__field {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  --paper: #f3f6f7;
-  --ink: #15191d;
 }
 
-.role-fit__hatch-canvas {
+.wait-plate__canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.role-fit__hatch--css .role-fit__hatch-canvas {
+/* Without WebGPU the same light sweeps across in CSS. */
+.wait-plate__field--css .wait-plate__canvas {
   display: none;
 }
 
-.role-fit__hatch--css {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent 0,
-    transparent calc(var(--hatch-gap) - var(--hatch-stroke)),
-    var(--ink) calc(var(--hatch-gap) - var(--hatch-stroke)),
-    var(--ink) var(--hatch-gap)
+.wait-plate__field--css {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--wait-tint) 50%,
+    transparent 100%
   );
-  opacity: var(--hatch-opacity);
-  transition: opacity 180ms ease;
+  background-size: 220% 100%;
+  opacity: 0.4;
+  animation: wait-plate-sweep 6s linear infinite;
 }
 
-.role-fit__hatch--gpu {
-  opacity: 1;
+@keyframes wait-plate-sweep {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -130% 0;
+  }
 }
 
-.role-fit__status-plate-copy {
+.wait-plate__body {
   position: relative;
   z-index: 1;
+  display: flex;
   min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  grid-column: 1;
+  grid-row: 1;
 }
 
-.role-fit__status-plate-copy .role-fit__desk-label {
-  margin: 0;
-}
-
-.role-fit__stage {
-  margin: 0.15rem 0 0;
+/* The pill keeps its own opaque ground so the label stays readable whatever the
+   gradient is doing underneath it. `overflow: hidden` is what clips the
+   outgoing label instead of letting it widen the box on its way out. */
+.wait-plate__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  padding: 0.6rem 1rem 0.6rem 0.8rem;
+  border: 1px solid var(--ink);
+  background: white;
   color: var(--ink);
-  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+  font-size: clamp(0.95rem, 1.7vw, 1.2rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  letter-spacing: -0.025em;
 }
 
-.role-fit__status-plate > button {
+.wait-plate__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--wait-tint);
+}
+
+.wait-plate__icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.2;
+}
+
+/* Never wraps and is never scaled — the box resizes, the text only travels. */
+.wait-plate__label {
+  display: block;
+  white-space: nowrap;
+}
+
+.wait-plate__count {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.2rem;
+  margin: 0;
+  color: var(--steel-deep);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.wait-plate__track {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wait-plate__track li {
+  height: 3px;
+  background: var(--rule);
+}
+
+.wait-plate__track li[data-state='done'] {
+  background: var(--ink);
+}
+
+.wait-plate__track li[data-state='live'] {
+  background: var(--ink);
+  animation: wait-plate-live 1.5s ease-in-out infinite;
+}
+
+@keyframes wait-plate-live {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.wait-plate__cancel {
   position: relative;
   z-index: 1;
   min-height: 2.4rem;
-  padding: 0.55rem 0.8rem;
+  align-self: center;
+  grid-column: 2;
+  grid-row: 1;
+  padding: 0.55rem 0.85rem;
   border: 1px solid var(--ink);
   border-radius: 0;
-  background: var(--paper);
+  background: white;
   color: var(--ink);
   box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font: inherit;
   font-size: 0.76rem;
   font-weight: 750;
 }
 
-.role-fit__status-plate > button:hover {
+.wait-plate__cancel:hover {
   background: var(--ink);
   color: var(--paper);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .role-fit__hatch {
-    display: none;
+  .wait-plate__field--css,
+  .wait-plate__track li[data-state='live'] {
+    animation: none;
   }
 
-  .role-fit__hatch-canvas {
-    display: none;
+  .wait-plate__field--css {
+    opacity: 0.18;
+  }
+}
+
+@media (max-width: 620px) {
+  .wait-plate {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .role-fit__status-plate {
-    background-image: linear-gradient(var(--steel), var(--steel));
-    background-repeat: no-repeat;
-    background-position: left bottom;
-    background-size: 100% 2px;
+  .wait-plate__cancel {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: stretch;
   }
 
-  .role-fit__status-plate .role-fit__stage {
-    transition: none;
+  .wait-plate__track {
+    grid-column: 1;
   }
 }
 
@@ -2272,7 +2362,9 @@ a.role-fit__source:hover {
 }
 
 .contact-section .eyebrow {
-  color: var(--route-softer);
+  /* route-softer is 4.28:1 on this blue, just under AA for text this size.
+     route-soft clears it at 4.62:1 and matches the role-fit eyebrow above. */
+  color: var(--route-soft);
 }
 
 .contact-section h2 {

@@ -40,7 +40,7 @@ import {
   FIT_STOPPED_COPY,
   type FitStageId,
 } from './fit-stream';
-import { RoleFitHatch } from './RoleFitHatch';
+import { WaitPlate } from './WaitPlate';
 import { SAMPLE_ROLE_TEXT } from './sample-role';
 
 const MIN_ROLE_LENGTH = 250;
@@ -1333,22 +1333,11 @@ export function RoleFit() {
 
               <div className="role-fit__form-footer">
                 {isLoading && requestState.status === 'loading' ? (
-                  <div
-                    className="role-fit__status-plate"
-                    data-stage={requestState.stage}
-                    role="status"
-                    aria-live="polite"
-                    aria-atomic="true"
-                  >
-                    <RoleFitHatch stage={requestState.stage} />
-                    <div className="role-fit__status-plate-copy">
-                      <p className="role-fit__desk-label">Compare</p>
-                      <p className="role-fit__stage">{requestState.label}</p>
-                    </div>
-                    <button type="button" onClick={handleCancel}>
-                      Cancel
-                    </button>
-                  </div>
+                  <WaitPlate
+                    stage={requestState.stage}
+                    label={requestState.label}
+                    onCancel={handleCancel}
+                  />
                 ) : (
                   <>
                     <button

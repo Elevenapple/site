@@ -58,10 +58,12 @@ https://paprikaf.com/api/mcp — Streamable HTTP, no API key, no sign-in.
 
 Tools: get_profile (start here), search_work, get_project, compare_role.
 The compare_role tool is rate limited because it runs a model; the lookups
-are not.
+are not. Prompts: overview, check_fit.
 
-For ChatGPT, the server also exposes the search and fetch pair that deep
-research and company knowledge retrieve through. Add it as a custom connector
-with Developer mode enabled.
+- Claude: Customize → Connectors → Add custom connector, then paste the URL.
+- ChatGPT: turn on Developer mode, then Plugins → + and paste the URL. The
+  server also exposes the search and fetch pair that deep research uses.
+- Claude Code: claude mcp add -s user -t http paprikaf https://paprikaf.com/api/mcp
+- Skill: npx skills add paprikaf/site --skill paprikaf
 
 For ownership boundaries and published claims, see /evidence.md.

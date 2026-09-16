@@ -1,4 +1,5 @@
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { experience, expertise, projects, publicLinks } from '@/data/portfolio';
 import {
@@ -11,7 +12,14 @@ import {
   WORK_FACETS,
   type WorkFacet,
 } from '@/features/work/facets';
-import { McpConnect } from '@/features/mcp/McpConnect';
+import {
+  AgentAccess,
+  PortraitGlint,
+} from '@/features/agent-access/AgentAccess';
+import {
+  DEFAULT_AGENT_WAY,
+  type AgentWayId,
+} from '@/features/agent-access/ways';
 import { RoleFit } from '@/features/role-fit/RoleFit';
 
 function IndexComponent() {
@@ -20,6 +28,9 @@ function IndexComponent() {
   const selected = parseFacets(work);
   const counts = countByFacet(projects);
   const visible = filterProjects(projects, selected);
+  const [agentWay, setAgentWay] = useState<AgentWayId>(DEFAULT_AGENT_WAY);
+  const [glint, setGlint] = useState(0);
+  const catchLight = () => setGlint((count) => count + 1);
 
   // replace, not push, so filtering does not fill the back button with steps
   // between a visitor and the page they arrived from.
@@ -50,10 +61,25 @@ function IndexComponent() {
               View résumé <ArrowUpRight aria-hidden="true" />
             </Link>
           </div>
+
+          <AgentAccess
+            way={agentWay}
+            onWayChange={(next) => {
+              setAgentWay(next);
+              catchLight();
+            }}
+            onCopy={catchLight}
+          />
         </div>
 
         <figure className="portfolio-portrait">
-          <img src="/avatar.webp" alt="Illustrated portrait of Ahmed Felfel" />
+          <div className="portfolio-portrait__frame">
+            <img
+              src="/avatar.webp"
+              alt="Illustrated portrait of Ahmed Felfel"
+            />
+            <PortraitGlint pulse={glint} />
+          </div>
           <figcaption>
             <span>Current role</span>
             <strong>GTM Engineer at Builder.io</strong>
@@ -133,8 +159,6 @@ function IndexComponent() {
       </section>
 
       <RoleFit />
-
-      <McpConnect />
 
       <section
         className="role-arc"

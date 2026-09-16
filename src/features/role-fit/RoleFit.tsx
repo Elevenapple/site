@@ -509,7 +509,8 @@ function FitBriefView({ brief }: { brief: FitBrief }) {
             This AI-assisted comparison uses claims and links Ahmed has
             published. Project links show that the work exists; some role and
             ownership details are Ahmed’s own account. Use the questions above
-            to verify them.
+            to verify them, or{' '}
+            <a href="#ask-your-ai">ask your own AI the follow-ups</a>.
           </p>
           <p className="role-fit__meta">
             {evidenceReviewedAt
@@ -1098,7 +1099,7 @@ export function RoleFit() {
     : overCeiling
       ? `Remove ${(roleInputLength - MAX_ROLE_LENGTH).toLocaleString()} characters to compare.`
       : roleInputLength === 0
-        ? 'Paste a role, attach a file, or try the sample.'
+        ? 'Load a link, paste a role, or try the sample.'
         : belowFloor
           ? `${(MIN_ROLE_LENGTH - roleInputLength).toLocaleString()} more characters needed.`
           : `Takes about 15 seconds. ${SUBMIT_SHORTCUT} to compare.`;
@@ -1116,9 +1117,9 @@ export function RoleFit() {
           <div>
             <h2 id="role-fit-title">How does Ahmed fit this role?</h2>
             <p>
-              Paste a job description, or attach the files. You’ll see where
-              Ahmed’s public work lines up, what this site can’t answer, and
-              three questions to test the fit.
+              Bring a job posting as a link, the text, or a file. You’ll see
+              where Ahmed’s public work lines up, what this site can’t answer,
+              and three questions to test the fit.
             </p>
           </div>
         </header>
@@ -1132,24 +1133,17 @@ export function RoleFit() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
+              aria-labelledby="role-fit-add-title"
               noValidate
             >
-              <div className="role-fit__form-topline">
-                <span>Role workspace</span>
-                <span className={countClassName} aria-label={countAriaLabel}>
-                  {countLabel}
-                </span>
-              </div>
-
               <div className="role-fit__paste">
                 <div className="role-fit__paste-head">
                   <div>
-                    <label htmlFor="role-fit-input">
-                      Paste the role description
-                    </label>
+                    <h3 id="role-fit-add-title">Add the role</h3>
                     <p>
-                      Responsibilities, requirements, and team context give the
-                      sharpest comparison.
+                      Load a job link, attach a file, or paste the text.
+                      Whatever you add lands in the field below, so you can
+                      check it before comparing.
                     </p>
                   </div>
                   <button
@@ -1162,20 +1156,6 @@ export function RoleFit() {
                     Try a sample role
                   </button>
                 </div>
-
-                <textarea
-                  ref={textareaRef}
-                  id="role-fit-input"
-                  name="role-description"
-                  value={roleText}
-                  onChange={(event) => handleRoleTextChange(event.target.value)}
-                  onKeyDown={handleTextareaKeyDown}
-                  maxLength={MAX_ROLE_LENGTH}
-                  placeholder="Paste the full role here — responsibilities, requirements, team context…"
-                  aria-describedby={`role-fit-input-help${fieldError ? ' role-fit-input-error' : ''}`}
-                  aria-invalid={fieldError ? 'true' : undefined}
-                  disabled={isLoading}
-                />
 
                 <div className="role-fit__sources">
                   <div className="role-fit__url">
@@ -1239,9 +1219,9 @@ export function RoleFit() {
 
                 <p id="role-fit-source-help" className="role-fit__source-help">
                   Links work on job boards that publish the text in the page.
-                  Files can be dropped anywhere on this panel · PDF, DOCX, TXT,
-                  or Markdown · up to {MAX_FILES} files · {MAX_FILE_SIZE_LABEL}{' '}
-                  each
+                  Files: PDF, DOCX, TXT, or Markdown, up to {MAX_FILES} at{' '}
+                  {MAX_FILE_SIZE_LABEL} each. You can also drop them anywhere on
+                  this panel.
                 </p>
 
                 {urlState.status === 'error' ? (
@@ -1310,6 +1290,30 @@ export function RoleFit() {
                   </ul>
                 ) : null}
 
+                {/* The count sits on the field it measures. It shows the
+                    250-character floor first, because that is the limit a
+                    visitor actually hits. */}
+                <div className="role-fit__field-head">
+                  <label htmlFor="role-fit-input">Role description</label>
+                  <span className={countClassName} aria-label={countAriaLabel}>
+                    {countLabel}
+                  </span>
+                </div>
+
+                <textarea
+                  ref={textareaRef}
+                  id="role-fit-input"
+                  name="role-description"
+                  value={roleText}
+                  onChange={(event) => handleRoleTextChange(event.target.value)}
+                  onKeyDown={handleTextareaKeyDown}
+                  maxLength={MAX_ROLE_LENGTH}
+                  placeholder="Paste the full role here — responsibilities, requirements, team context…"
+                  aria-describedby={`role-fit-input-help${fieldError ? ' role-fit-input-error' : ''}`}
+                  aria-invalid={fieldError ? 'true' : undefined}
+                  disabled={isLoading}
+                />
+
                 <div className="role-fit__dropveil" aria-hidden="true">
                   <span>
                     <FileUp aria-hidden="true" />
@@ -1320,9 +1324,8 @@ export function RoleFit() {
 
               <div className="role-fit__input-meta">
                 <p id="role-fit-input-help">
-                  {MIN_ROLE_LENGTH.toLocaleString()}–
-                  {MAX_ROLE_LENGTH.toLocaleString()} combined characters ·
-                  Public role descriptions only
+                  Public role descriptions only. Responsibilities and
+                  requirements give the sharpest comparison.
                 </p>
                 {fieldError ? (
                   <p id="role-fit-input-error" role="alert">

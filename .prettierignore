@@ -7,3 +7,6 @@ coverage
 out
 pnpm-lock.yaml
 **/routeTree.gen.ts
+
+# Captured pages, kept byte-for-byte as the sites actually serve them
+tests/**/fixtures/**

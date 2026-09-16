@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Job Application for Staff Product Engineer at Northwind</title>
+    <meta name="description" content="Apply for Staff Product Engineer" />
+    <style>
+      .board { font-family: system-ui, sans-serif; color: #1a1a1a; }
+      .board__nav a { text-decoration: none; }
+      .hidden { display: none !important; }
+    </style>
+    <script>
+      window.ENV = {
+        ASSET_URL: 'https://cdn.example-board.test',
+        ANALYTICS_APP_ID: 'fixture-only-not-a-real-value',
+        FEATURE_FLAGS: { newApply: true },
+      };
+      function bootstrapBoard(el) {
+        try {
+          sessionStorage.removeItem('board-draft');
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    </script>
+  </head>
+  <body class="board">
+    <header class="board__header">
+      <a href="/northwind">Northwind</a>
+      <span>Careers</span>
+    </header>
+
+    <nav class="board__nav" aria-label="Board">
+      <a href="/northwind">Back to jobs</a>
+      <a href="/northwind/teams">All teams</a>
+      <a href="/northwind/locations">All locations</a>
+    </nav>
+
+    <main>
+      <h1>Staff Product Engineer</h1>
+      <p class="location">Remote &mdash; North America &nbsp;&bull;&nbsp; Full-time</p>
+
+      <div class="content-intro">
+        <p>
+          Northwind builds tools for teams that ship. We&#39;re looking for a
+          staff product engineer to own new surfaces end&nbsp;to&nbsp;end, from
+          the first prototype through the version people actually rely on.
+        </p>
+        <p>
+          You&rsquo;ll work with design &amp; go-to-market partners, and you will
+          be accountable for what you ship after it launches.
+        </p>
+      </div>
+
+      <h3>What you&rsquo;ll do</h3>
+      <ul>
+        <li>Build the first version of new product surfaces and iterate after launch.</li>
+        <li>Work across the stack in TypeScript and React, with Node services behind them.</li>
+        <li>Design internal tooling that makes the rest of the team faster.</li>
+        <li>Instrument what you ship and use that data to decide what is next.</li>
+      </ul>
+
+      <h3>What we&rsquo;re looking for</h3>
+      <ul>
+        <li>Experience taking a product from nothing to production.</li>
+        <li>Strong TypeScript and React fundamentals &mdash; 5&#43; years.</li>
+        <li>Comfort with LLM APIs and agent tooling in production.</li>
+        <li>A track record of owning a system after launch.</li>
+      </ul>
+
+      <h3>Nice to have</h3>
+      <ul>
+        <li>Developer tools or technical products.</li>
+        <li>Infrastructure familiarity: cloud deployment, Terraform, CI/CD.</li>
+      </ul>
+
+      <p>
+        We consider qualified applicants regardless of background. If you need an
+        accommodation during the process, tell your recruiter.
+      </p>
+    </main>
+
+    <footer class="board__footer">
+      <a href="/privacy">Privacy policy</a>
+      <a href="/terms">Terms</a>
+      <span>Jobs powered by Example Board</span>
+    </footer>
+
+    <script>
+      (function renderApp() {
+        var root = document.querySelector('main');
+        bootstrapBoard(root);
+      })();
+    </script>
+  </body>
+</html>

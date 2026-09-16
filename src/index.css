@@ -738,12 +738,131 @@
   stroke-width: 2;
 }
 
-.role-fit__attach {
+.role-fit__sources {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem 0.9rem;
+  gap: 0.6rem 0.75rem;
   margin-top: 0.8rem;
+}
+
+/* The link field is the wider of the two secondary inputs because a URL is
+   long, but both stay visibly below the textarea, which is still the point. */
+.role-fit__url {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 22rem;
+  align-items: center;
+  border: 1px solid var(--ink);
+  background: var(--paper-soft);
+}
+
+.role-fit__url:focus-within {
+  outline: 3px solid var(--checkpoint);
+  outline-offset: 2px;
+}
+
+.role-fit__url > svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: 0 0 auto;
+  margin-left: 0.7rem;
+  color: var(--steel);
+  stroke-width: 2;
+}
+
+.role-fit__url input {
+  min-width: 0;
+  flex: 1;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--route);
+  font-size: 0.85rem;
+}
+
+.role-fit__url input:focus {
+  outline: none;
+}
+
+.role-fit__url input::placeholder {
+  color: var(--steel-muted);
+}
+
+.role-fit__url-load {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: stretch;
+  padding: 0 0.9rem;
+  border: 0;
+  border-left: 1px solid var(--ink);
+  background: var(--ink);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 750;
+  transition: background-color 120ms ease;
+}
+
+.role-fit__url-load:hover:not(:disabled) {
+  background: var(--route);
+}
+
+.role-fit__url-load:disabled {
+  background: var(--paper-2);
+  color: var(--steel-mid);
+  cursor: not-allowed;
+}
+
+.role-fit__url-load svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  animation: role-fit-spin 900ms linear infinite;
+}
+
+.role-fit__source-help {
+  margin: 0.6rem 0 0;
+  color: var(--steel);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.6rem;
+  line-height: 1.55;
+}
+
+.role-fit__url-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid var(--rule);
+  background: var(--paper-2);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.role-fit__url-note svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  stroke-width: 2.4;
+}
+
+.role-fit__url-note.is-loaded {
+  border-left-color: var(--route);
+  color: var(--steel-deep);
+}
+
+.role-fit__url-note.is-loaded svg {
+  color: var(--route);
+}
+
+.role-fit__url-note.is-error {
+  border-left-color: var(--danger);
+  background: var(--warn-wash);
+  color: var(--ink);
 }
 
 .role-fit__attach-button {
@@ -780,16 +899,6 @@
   height: 0.95rem;
   flex: 0 0 auto;
   stroke-width: 2;
-}
-
-.role-fit__attach p {
-  min-width: 0;
-  flex: 1 1 14rem;
-  margin: 0;
-  color: var(--steel);
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.6rem;
-  line-height: 1.5;
 }
 
 .role-fit__file-input {
@@ -1828,6 +1937,15 @@ a.role-fit__source:hover {
 
   .role-fit__paste {
     padding: 0.85rem;
+  }
+
+  .role-fit__url {
+    flex-basis: 100%;
+  }
+
+  .role-fit__sources .role-fit__attach-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .role-fit__gate {

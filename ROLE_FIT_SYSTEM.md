@@ -18,10 +18,10 @@ A visitor pastes a public job description. The site returns:
 The result never recommends hiring Ahmed, produces a fit score, or treats
 missing public information as proof that Ahmed lacks experience.
 
-## Why v1 is text-only
+## Why v1 was text-only
 
-Pasted text proves the useful product loop with the smallest privacy and abuse
-surface. Job-URL reading with Exa remains a later option. The public corpus is
+Pasted text proved the useful product loop with the smallest privacy and abuse
+surface. Job links now work too, without Exa — see Job links below. The public corpus is
 also small enough to fit in one model context, so v1 does not need embeddings, a
 vector database, or a retrieval service.
 
@@ -164,6 +164,51 @@ The model does not author visible claims, rationale, summaries, gap
 explanations, questions, citations, or URLs. The server composes those fields
 after validation from the role requirements and the canonical corpus.
 
+## Job links
+
+A visitor can paste a job posting URL instead of the description. The server
+loads the page at `POST /api/role-source`, reduces it to text, and the client
+puts that text in the textarea — visible and editable — rather than comparing it
+straight away. The person sees what was pulled before it is used.
+
+Two paths:
+
+- **Greenhouse** publishes every posting through an open JSON API, so a
+  `greenhouse.io/{board}/jobs/{id}` URL is read through
+  `boards-api.greenhouse.io`, which returns the description with no page chrome.
+- **Everything else** is fetched and stripped of markup. This works on
+  server-rendered postings and returns nothing useful on client-rendered ones.
+
+Extraction that yields less than the 250-character floor is reported as a
+failure telling the person to paste instead. That matters more than the happy
+path: handing the model an empty shell or a page of navigation chrome produces a
+confident, wrong brief. Known dead ends are client-rendered boards (Ashby,
+Workday) and anything behind a login (LinkedIn). Lever's public postings API no
+longer responds, so there is no adapter for it.
+
+Exa was not needed. A direct fetch costs nothing, adds no third-party
+dependency, and keeps the failure modes legible.
+
+### Fetching a visitor-supplied URL safely
+
+Server-side fetching of a caller-chosen URL is server-side request forgery by
+default, so `server/role-fit/url-guard.ts` gates every request:
+
+- https only, and no credentials in the URL;
+- the hostname is resolved first, and every returned address is checked against
+  the private, loopback, link-local, carrier-grade-NAT, multicast, and reserved
+  ranges, which is what keeps `169.254.169.254` out of reach;
+- literal IP hosts are checked directly, since they skip DNS, including
+  IPv4-mapped IPv6;
+- redirects are followed by hand, at most three hops, re-validating each one, so
+  a permitted host cannot redirect the request into a private address;
+- responses are capped at 2 MB with a 9-second timeout, and only HTML, plain
+  text, and JSON content types are accepted.
+
+The endpoint is same-origin only, so it is not a public URL fetcher wearing this
+deployment's address, and it has its own rate limiter separate from the
+comparison budget.
+
 ## Generation boundary
 
 The server sends the role description and every current public claim to the
@@ -247,21 +292,21 @@ the normal test suite skips the three paid provider calls.
 
 ## Explicitly deferred
 
-- Exa job-URL ingestion
 - generic ask-me-anything chat
 - follow-up conversations or saved reports
 - embeddings, hybrid retrieval, or a vector database
 - accounts, email capture, or PDF export
 - private Slack, Granola, customer, meeting, or repository evidence
-- a public MCP server
+- headless-browser rendering for client-rendered job boards
 
 ## Revisit triggers
 
 Add Exa only if pasted descriptions create meaningful friction. Add retrieval
 only if the corpus grows beyond roughly 50 atomic claims or evaluations show
 that full-corpus context hurts quality. Add durable storage only when content
-must change without deployment or visitors need saved comparisons. Expose MCP
-only after people ask to query this same public record from their own agents.
+must change without deployment or visitors need saved comparisons. Add headless
+rendering only if client-rendered boards become a common enough dead end to be
+worth the cost and the abuse surface.
 
 ## References
 

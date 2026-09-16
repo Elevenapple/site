@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { wgslVitePlugin } from '@vgpu/wgsl/loader-vite';
 import path from 'path';
+import { devApiPlugin } from './dev-api-plugin';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,6 +11,7 @@ export default defineConfig({
     tanstackRouter({ autoCodeSplitting: true }),
     react(),
     wgslVitePlugin(),
+    devApiPlugin(),
   ],
   resolve: {
     alias: {

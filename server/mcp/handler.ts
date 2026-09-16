@@ -13,6 +13,7 @@ import {
   type JsonRpcRequest,
   type JsonRpcResponse,
 } from './protocol.js';
+import { findPrompt, PROMPT_DEFINITIONS } from './prompts.js';
 import { callTool, findTool, TOOL_DEFINITIONS, toolError } from './tools.js';
 
 const SERVER_NAME = 'paprikaf';
@@ -26,19 +27,24 @@ const SITE_URL = 'https://paprikaf.com';
  */
 const takeMcpRateLimit = createFitRateLimiter();
 
-const SERVER_INSTRUCTIONS = [
-  'This server answers questions about Ahmed Felfel, a product engineer in',
-  'Montréal, using only claims and links he has published on paprikaf.com.',
+/**
+ * The rules come before the tool order. ChatGPT's developer-mode guide asks for
+ * the first 512 characters to stand on their own, and a client that truncates
+ * should keep the part that stops it overclaiming, not the part it could work
+ * out from the tool descriptions.
+ */
+export const SERVER_INSTRUCTIONS = [
+  'Answers questions about Ahmed Felfel, a product engineer in Montréal, using',
+  'only claims and links he has published on paprikaf.com.',
   '',
-  'Call get_profile first to see which projects and capabilities have public',
-  'evidence. Use search_work for a specific capability or technology, and',
-  'get_project for everything about one project. Use compare_role to check a',
-  'job description against the evidence.',
+  'Cite the source links you get back. When a tool finds no match, say the',
+  'site publishes no evidence for it; do not conclude that Ahmed lacks the',
+  'experience. Do not infer ownership, seniority, metrics, or outcomes beyond',
+  'what a claim states, and respect every caveat.',
   '',
-  'Cite the source links you get back. When a tool returns no match, say that',
-  'the site publishes no evidence for it rather than concluding that Ahmed',
-  'lacks the experience. Do not infer ownership, seniority, metrics, or',
-  'outcomes beyond what a claim states, and respect every caveat returned.',
+  'Call get_profile first to see which projects have public evidence. Use',
+  'search_work for a capability or technology, get_project for one project,',
+  'and compare_role to check a job description against the evidence.',
 ].join('\n');
 
 const corsHeaders = {
@@ -85,6 +91,7 @@ function handleInitialize(message: JsonRpcRequest): JsonRpcResponse {
     capabilities: {
       tools: { listChanged: false },
       resources: { listChanged: false, subscribe: false },
+      prompts: { listChanged: false },
     },
     serverInfo: {
       name: SERVER_NAME,
@@ -152,6 +159,37 @@ function handleResourcesRead(message: JsonRpcRequest): JsonRpcResponse {
         text: JSON.stringify(approvedClaimsJson, null, 2),
       },
     ],
+  });
+}
+
+function handlePromptsList(message: JsonRpcRequest): JsonRpcResponse {
+  return success(message.id, {
+    prompts: PROMPT_DEFINITIONS.map((prompt) => ({
+      name: prompt.name,
+      title: prompt.title,
+      description: prompt.description,
+      arguments: [],
+    })),
+  });
+}
+
+function handlePromptsGet(message: JsonRpcRequest): JsonRpcResponse {
+  const name = message.params?.name;
+  const prompt = typeof name === 'string' ? findPrompt(name) : undefined;
+
+  if (!prompt) {
+    return failure(
+      message.id,
+      JsonRpcErrorCode.InvalidParams,
+      `Unknown prompt "${String(name)}". Known: ${PROMPT_DEFINITIONS.map(
+        (definition) => definition.name
+      ).join(', ')}.`
+    );
+  }
+
+  return success(message.id, {
+    description: prompt.description,
+    messages: [{ role: 'user', content: { type: 'text', text: prompt.text } }],
   });
 }
 
@@ -228,6 +266,10 @@ async function dispatch(
       return handleResourcesRead(message);
     case 'resources/templates/list':
       return success(message.id, { resourceTemplates: [] });
+    case 'prompts/list':
+      return handlePromptsList(message);
+    case 'prompts/get':
+      return handlePromptsGet(message);
     default:
       return failure(
         message.id,

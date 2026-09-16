@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { handleMcpRequest } from '../../server/mcp/handler';
+import {
+  handleMcpRequest,
+  SERVER_INSTRUCTIONS,
+} from '../../server/mcp/handler';
 import { LATEST_PROTOCOL_VERSION } from '../../server/mcp/protocol';
 import approvedClaims from '../../content/approved-claims.json';
 
@@ -91,6 +94,7 @@ describe('MCP transport', () => {
     expect(payload.result.protocolVersion).toBe(LATEST_PROTOCOL_VERSION);
     expect(payload.result.capabilities).toHaveProperty('tools');
     expect(payload.result.capabilities).toHaveProperty('resources');
+    expect(payload.result.capabilities).toHaveProperty('prompts');
     expect(payload.result.serverInfo.name).toBe('paprikaf');
     expect(payload.result.instructions).toContain('get_profile');
   });
@@ -153,7 +157,10 @@ describe('MCP transport', () => {
   });
 
   it('returns method not found for an unimplemented method', async () => {
-    const response = await handleMcpRequest(post(rpc('prompts/list')));
+    // A stateless server has no subscriptions to offer.
+    const response = await handleMcpRequest(
+      post(rpc('resources/subscribe', { uri: 'paprikaf://evidence/claims' }))
+    );
 
     const payload = (await response.json()) as { error: { code: number } };
     expect(payload.error.code).toBe(-32601);
@@ -337,6 +344,71 @@ describe('MCP resources', () => {
 
     const payload = (await response.json()) as { error: { code: number } };
     expect(payload.error.code).toBe(-32602);
+  });
+});
+
+describe('MCP prompts', () => {
+  type PromptList = {
+    result: {
+      prompts: Array<{ name: string; title: string; arguments: unknown[] }>;
+    };
+  };
+  type PromptGet = {
+    result: {
+      messages: Array<{
+        role: string;
+        content: { type: string; text: string };
+      }>;
+    };
+  };
+
+  it('lists argument-free prompts, because Claude Code splits arguments on whitespace', async () => {
+    const payload = (await (
+      await handleMcpRequest(post(rpc('prompts/list')))
+    ).json()) as PromptList;
+
+    expect(payload.result.prompts.map((prompt) => prompt.name)).toEqual([
+      'overview',
+      'check_fit',
+    ]);
+    for (const prompt of payload.result.prompts) {
+      expect(prompt.title.length).toBeGreaterThan(0);
+      expect(prompt.arguments).toEqual([]);
+    }
+  });
+
+  it('returns a single user message that names the tools to call', async () => {
+    const overview = (await (
+      await handleMcpRequest(post(rpc('prompts/get', { name: 'overview' })))
+    ).json()) as PromptGet;
+    const checkFit = (await (
+      await handleMcpRequest(post(rpc('prompts/get', { name: 'check_fit' })))
+    ).json()) as PromptGet;
+
+    expect(overview.result.messages).toHaveLength(1);
+    expect(overview.result.messages[0].role).toBe('user');
+    expect(overview.result.messages[0].content.text).toContain('get_profile');
+    expect(checkFit.result.messages[0].content.text).toContain('compare_role');
+  });
+
+  it('rejects an unknown prompt with invalid params', async () => {
+    const payload = (await (
+      await handleMcpRequest(post(rpc('prompts/get', { name: 'hire_him' })))
+    ).json()) as { error: { code: number; message: string } };
+
+    expect(payload.error.code).toBe(-32602);
+    expect(payload.error.message).toContain('overview');
+  });
+});
+
+describe('server instructions', () => {
+  it('keeps the rules against overclaiming inside the first 512 characters', () => {
+    // ChatGPT asks for the first 512 characters to stand on their own.
+    const head = SERVER_INSTRUCTIONS.slice(0, 512);
+
+    expect(head).toContain('do not conclude that Ahmed lacks the');
+    expect(head).toContain('respect every caveat');
+    expect(head).toContain('get_profile');
   });
 });
 

@@ -192,5 +192,6 @@ export const publicLinks = {
   email: 'mailto:ahmed@galite.ai',
   github: 'https://github.com/paprikaf',
   linkedin: 'https://www.linkedin.com/in/ahmed-felfel-080895/',
+  records: 'https://cr8.audio/listen/baston2rue',
   repo: 'https://github.com/paprikaf/site',
 };

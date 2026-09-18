@@ -2406,11 +2406,15 @@ a.role-fit__source:hover {
   align-self: start;
 }
 
-.about-strip > div > p:last-child {
+.about-strip > div > p {
   max-width: 700px;
   margin: 1.5rem 0 0;
   color: var(--steel);
   font-size: 1.12rem;
+}
+
+.about-strip__action {
+  margin-top: 1.5rem;
 }
 
 .contact-section {

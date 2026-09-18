@@ -1,6 +1,6 @@
 {
-  "version": "2026-08-27.6",
-  "reviewedAt": "2026-09-15",
+  "version": "2026-08-27.7",
+  "reviewedAt": "2026-09-18",
   "claims": [
     {
       "id": "builder-academy-built",
@@ -206,25 +206,63 @@
       "reviewedAt": "2026-09-15"
     },
     {
+      "id": "crate-building",
+      "projectId": "crate",
+      "title": "Crate",
+      "organization": "Independent",
+      "claim": "Ahmed started and is building Crate, a record room for DJs: sign in with Discogs, then search your collection, play tracks through YouTube, shape playlists, and ask a DJ assistant for direction. It is live at cr8.audio and is moving toward an MCP server so the same tools work from any AI client.",
+      "ownership": "creator",
+      "capabilities": [
+        "zero-to-one",
+        "product-engineering",
+        "oauth",
+        "integrations",
+        "applied-ai",
+        "open-source"
+      ],
+      "status": "current",
+      "sources": [
+        {
+          "id": "crate-app",
+          "label": "Crate · cr8.audio",
+          "url": "https://cr8.audio",
+          "provenance": "public-artifact"
+        },
+        {
+          "id": "crate-source",
+          "label": "Cr8-audio/app repository",
+          "url": "https://github.com/Cr8-audio/app",
+          "provenance": "public-authorship-record"
+        }
+      ],
+      "caveats": [
+        "Crate is an early product; do not claim user counts or usage metrics.",
+        "The MCP server is the stated direction, not a shipped feature.",
+        "Ahmed started the repository and is its main committer; another contributor has also committed, so do not imply sole authorship."
+      ],
+      "public": true,
+      "reviewedAt": "2026-09-18"
+    },
+    {
       "id": "discogs-sdk-authorship",
       "projectId": "discogs-sdk",
-      "title": "@crate.ai/discogs-sdk",
+      "title": "@cr8.audio/discogs-sdk",
       "organization": "Open source",
-      "claim": "Ahmed created and maintains the @crate.ai/discogs-sdk TypeScript client for the Discogs API.",
+      "claim": "Ahmed created and maintains the @cr8.audio/discogs-sdk TypeScript client for the Discogs API.",
       "ownership": "creator-maintainer",
       "capabilities": ["typescript", "sdk-design", "api-design", "open-source"],
       "status": "maintained",
       "sources": [
         {
           "id": "discogs-sdk-npm",
-          "label": "@crate.ai/discogs-sdk on npm",
-          "url": "https://www.npmjs.com/package/@crate.ai/discogs-sdk",
+          "label": "@cr8.audio/discogs-sdk on npm",
+          "url": "https://www.npmjs.com/package/@cr8.audio/discogs-sdk",
           "provenance": "public-authorship-record"
         },
         {
           "id": "discogs-sdk-repository",
-          "label": "Crate-AI/discogs-sdk repository",
-          "url": "https://github.com/Crate-AI/discogs-sdk",
+          "label": "Cr8-audio/discogs-sdk repository",
+          "url": "https://github.com/Cr8-audio/discogs-sdk",
           "provenance": "public-authorship-record"
         }
       ],
@@ -235,7 +273,7 @@
     {
       "id": "discogs-sdk-capabilities",
       "projectId": "discogs-sdk",
-      "title": "@crate.ai/discogs-sdk",
+      "title": "@cr8.audio/discogs-sdk",
       "organization": "Open source",
       "claim": "The SDK supports OAuth, search, collections, and identity workflows.",
       "ownership": "creator-maintainer",
@@ -244,14 +282,14 @@
       "sources": [
         {
           "id": "discogs-sdk-npm",
-          "label": "@crate.ai/discogs-sdk on npm",
-          "url": "https://www.npmjs.com/package/@crate.ai/discogs-sdk",
+          "label": "@cr8.audio/discogs-sdk on npm",
+          "url": "https://www.npmjs.com/package/@cr8.audio/discogs-sdk",
           "provenance": "public-artifact"
         },
         {
           "id": "discogs-sdk-repository",
-          "label": "Crate-AI/discogs-sdk repository",
-          "url": "https://github.com/Crate-AI/discogs-sdk",
+          "label": "Cr8-audio/discogs-sdk repository",
+          "url": "https://github.com/Cr8-audio/discogs-sdk",
           "provenance": "public-artifact"
         }
       ],

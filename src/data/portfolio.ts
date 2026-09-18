@@ -81,22 +81,36 @@ export const projects: Project[] = [
     ],
   },
   {
+    id: 'crate',
+    ownership: 'Building',
+    facets: ['built', 'building'],
+    organization: 'Independent',
+    title: 'Crate',
+    summary:
+      'I’m building Crate, a record room for DJs. Sign in with Discogs and your collection becomes something you can search, play, shape into playlists, and explore with a DJ assistant. Next, it becomes an MCP server so the same tools work from any AI client.',
+    tags: ['DJ tools', 'Discogs', 'Live product'],
+    links: [
+      { label: 'Open Crate', href: 'https://cr8.audio' },
+      { label: 'View source', href: 'https://github.com/Cr8-audio/app' },
+    ],
+  },
+  {
     id: 'discogs-sdk',
     ownership: 'Creator + maintainer',
     facets: ['built'],
     organization: 'Open source',
-    title: '@crate.ai/discogs-sdk',
+    title: '@cr8.audio/discogs-sdk',
     summary:
       'I created and maintain a TypeScript SDK for the Discogs API. It supports OAuth, search, collections, and identity.',
     tags: ['TypeScript SDK', 'OAuth', 'API design'],
     links: [
       {
         label: 'View on npm',
-        href: 'https://www.npmjs.com/package/@crate.ai/discogs-sdk',
+        href: 'https://www.npmjs.com/package/@cr8.audio/discogs-sdk',
       },
       {
         label: 'View source',
-        href: 'https://github.com/Crate-AI/discogs-sdk',
+        href: 'https://github.com/Cr8-audio/discogs-sdk',
       },
     ],
   },

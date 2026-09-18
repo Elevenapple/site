@@ -17,6 +17,9 @@ engineering. He built software in each role.
   https://github.com/BuilderIO/agent-native/pulls?q=is%3Apr+author%3Apaprikaf+is%3Amerged
 - Nomad: building for people who live across borders — travel history against visa and tax-day clocks (not legal or tax advice):
   https://github.com/paprikaf/nomad
+- Crate: building a record room for DJs on top of their Discogs collection —
+  search, play, playlists, and a DJ assistant; moving toward an MCP server:
+  https://cr8.audio
 - @crate.ai/discogs-sdk: creator and maintainer:
   https://www.npmjs.com/package/@crate.ai/discogs-sdk
 - Galite: early product for organizing meeting notes, decisions, and follow-ups:

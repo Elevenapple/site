@@ -1,6 +1,6 @@
 # Ahmed Felfel — published portfolio record
 
-Last reviewed: 2026-08-27
+Last reviewed: 2026-09-18
 
 This file contains the claims used by the public portfolio. It deliberately
 excludes private meeting notes, internal metrics, customer information, and
@@ -69,6 +69,19 @@ Public sources:
 
 - https://github.com/paprikaf/nomad
 - https://www.agent-native.com/apps/community/nomad/
+
+### Crate — Building
+
+Ahmed started Crate and is building it: a record room for DJs. Sign in with
+Discogs, then search your collection, play tracks through YouTube, shape
+playlists, and ask a DJ assistant for direction. It is moving toward an MCP
+server so the same tools work from any AI client; that server is the direction,
+not a shipped feature. Another contributor has also committed to the repository.
+
+Public sources:
+
+- https://cr8.audio
+- https://github.com/Cr8-audio/app
 
 ### @crate.ai/discogs-sdk — Creator and maintainer
 

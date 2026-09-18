@@ -50,7 +50,7 @@ month-level dates publicly without checking the HR record.
 - **Internal AI tools for GTM:** Current work; internal system
 - **Agent Native:** Contributor
 - **Nomad:** Building; public and early; built on Agent Native
-- **@crate.ai/discogs-sdk:** Creator and maintainer
+- **@cr8.audio/discogs-sdk:** Creator and maintainer
 - **Galite:** Now building; public and early
 
 Prefer ownership, scope, public links, and concrete decisions over unsupported

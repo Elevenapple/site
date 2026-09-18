@@ -246,23 +246,23 @@
     {
       "id": "discogs-sdk-authorship",
       "projectId": "discogs-sdk",
-      "title": "@crate.ai/discogs-sdk",
+      "title": "@cr8.audio/discogs-sdk",
       "organization": "Open source",
-      "claim": "Ahmed created and maintains the @crate.ai/discogs-sdk TypeScript client for the Discogs API.",
+      "claim": "Ahmed created and maintains the @cr8.audio/discogs-sdk TypeScript client for the Discogs API.",
       "ownership": "creator-maintainer",
       "capabilities": ["typescript", "sdk-design", "api-design", "open-source"],
       "status": "maintained",
       "sources": [
         {
           "id": "discogs-sdk-npm",
-          "label": "@crate.ai/discogs-sdk on npm",
-          "url": "https://www.npmjs.com/package/@crate.ai/discogs-sdk",
+          "label": "@cr8.audio/discogs-sdk on npm",
+          "url": "https://www.npmjs.com/package/@cr8.audio/discogs-sdk",
           "provenance": "public-authorship-record"
         },
         {
           "id": "discogs-sdk-repository",
-          "label": "Crate-AI/discogs-sdk repository",
-          "url": "https://github.com/Crate-AI/discogs-sdk",
+          "label": "Cr8-audio/discogs-sdk repository",
+          "url": "https://github.com/Cr8-audio/discogs-sdk",
           "provenance": "public-authorship-record"
         }
       ],
@@ -273,7 +273,7 @@
     {
       "id": "discogs-sdk-capabilities",
       "projectId": "discogs-sdk",
-      "title": "@crate.ai/discogs-sdk",
+      "title": "@cr8.audio/discogs-sdk",
       "organization": "Open source",
       "claim": "The SDK supports OAuth, search, collections, and identity workflows.",
       "ownership": "creator-maintainer",
@@ -282,14 +282,14 @@
       "sources": [
         {
           "id": "discogs-sdk-npm",
-          "label": "@crate.ai/discogs-sdk on npm",
-          "url": "https://www.npmjs.com/package/@crate.ai/discogs-sdk",
+          "label": "@cr8.audio/discogs-sdk on npm",
+          "url": "https://www.npmjs.com/package/@cr8.audio/discogs-sdk",
           "provenance": "public-artifact"
         },
         {
           "id": "discogs-sdk-repository",
-          "label": "Crate-AI/discogs-sdk repository",
-          "url": "https://github.com/Crate-AI/discogs-sdk",
+          "label": "Cr8-audio/discogs-sdk repository",
+          "url": "https://github.com/Cr8-audio/discogs-sdk",
           "provenance": "public-artifact"
         }
       ],

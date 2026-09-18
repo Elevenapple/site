@@ -99,18 +99,18 @@ export const projects: Project[] = [
     ownership: 'Creator + maintainer',
     facets: ['built'],
     organization: 'Open source',
-    title: '@crate.ai/discogs-sdk',
+    title: '@cr8.audio/discogs-sdk',
     summary:
       'I created and maintain a TypeScript SDK for the Discogs API. It supports OAuth, search, collections, and identity.',
     tags: ['TypeScript SDK', 'OAuth', 'API design'],
     links: [
       {
         label: 'View on npm',
-        href: 'https://www.npmjs.com/package/@crate.ai/discogs-sdk',
+        href: 'https://www.npmjs.com/package/@cr8.audio/discogs-sdk',
       },
       {
         label: 'View source',
-        href: 'https://github.com/Crate-AI/discogs-sdk',
+        href: 'https://github.com/Cr8-audio/discogs-sdk',
       },
     ],
   },

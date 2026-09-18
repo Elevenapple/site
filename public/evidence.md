@@ -83,15 +83,15 @@ Public sources:
 - https://cr8.audio
 - https://github.com/Cr8-audio/app
 
-### @crate.ai/discogs-sdk — Creator and maintainer
+### @cr8.audio/discogs-sdk — Creator and maintainer
 
 Published a TypeScript client for the Discogs API with OAuth, search,
 collection, and identity support.
 
 Public sources:
 
-- https://www.npmjs.com/package/@crate.ai/discogs-sdk
-- https://github.com/Crate-AI/discogs-sdk
+- https://www.npmjs.com/package/@cr8.audio/discogs-sdk
+- https://github.com/Cr8-audio/discogs-sdk
 
 ### Galite — Now building
 

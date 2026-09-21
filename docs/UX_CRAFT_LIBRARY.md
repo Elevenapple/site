@@ -126,6 +126,30 @@ aesthetic" failure the brutalism entries warn about.
 - Their divider discipline ("dividers sit between posts, so the feed doesn't end
   on one"). Already correct here via `:not(:last-child)`.
 
+## Mobile spacing pass (2026-09-21)
+
+Feedback: the phone layout felt congested, particularly before visitors had
+time to take in the name and introduction. Treat the opening as a reading
+sequence: identity → headline → context → actions → assistant tools.
+
+- Give the stacked hero 8–10rem above the identity and 5rem before the portrait.
+  These are visual decisions for this site, not universal accessibility rules.
+- Use one fluid page gutter (20–32px on phones/tablets) for the navigation,
+  content, full-width sections, résumé, and footer. Don't squeeze phone content
+  against 12px margins to fit more information on screen.
+- Keep the bold display type, but loosen mobile heading leading to 1–1.05
+  and body leading to 1.65–1.7. Separate project labels, stories, and links;
+  let experience descriptions use the full content width.
+- Give standalone actions at least 44px of height where practical. WCAG 2.2's
+  [minimum target criterion](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)
+  is 24×24px with exceptions; the larger targets here are a comfort choice.
+- Keep editable form text at least 16px, and allow field labels and counters
+  to wrap rather than competing for one narrow row.
+- Check actual content and controls at 320px, around breakpoints, and on
+  desktop. Inspect individual elements as well as document width: clipping
+  can hide overflow without fixing it. See W3C's
+  [reflow guidance](https://www.w3.org/WAI/WCAG21/Understanding/reflow).
+
 ## Refresh cadence
 
 When Exa/Parallel (or web) is available, add 1–2 new primary sources per month; never let SEO listicles displace the canon above.

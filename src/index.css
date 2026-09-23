@@ -2748,6 +2748,13 @@ a.role-fit__source:hover {
     margin-top: 2.5rem;
   }
 
+  /* The grey counts sank into the paper chips on a phone. Ink matches the
+     chip label. */
+  .work-filter .work-filter__chip span {
+    color: var(--ink);
+    font-size: var(--text-label);
+  }
+
   .portfolio-portrait {
     justify-self: start;
     max-width: 620px;
@@ -2856,9 +2863,19 @@ a.role-fit__source:hover {
     padding-top: 5rem;
   }
 
+  /* Stay on one row, the way the desktop chips do. Wrapping made this
+     band taller than the rest of the phone spacing. */
   .work-filter {
-    gap: 0.75rem;
+    flex-wrap: nowrap;
+    width: max-content;
+    min-width: max-content;
+    gap: 1.5rem;
     padding-bottom: 2.5rem;
+  }
+
+  .work-filter__chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
 
   .evidence-row {
@@ -3414,11 +3431,22 @@ a.role-fit__source:hover {
   }
 
   .agent-access__panel {
+    flex-wrap: nowrap;
     min-height: 4.5rem;
+    overflow: hidden;
   }
 
   .agent-access__line {
+    overflow: hidden;
     font-size: 0.84rem;
+    white-space: nowrap;
+  }
+
+  .agent-access__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-wrap: normal;
   }
 }
 
